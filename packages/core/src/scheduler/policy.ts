@@ -30,6 +30,8 @@ import { DiscoveredMCPTool, formatMcpToolName } from '../tools/mcp-tool.js';
 import { EDIT_TOOL_NAMES } from '../tools/tool-names.js';
 import type { ValidatingToolCall } from './types.js';
 import type { AgentLoopContext } from '../config/agent-loop-context.js';
+import type { PolicySuggestion } from '../policy/suggestion-generator.js';
+import { isSafeRegExp } from '../policy/utils.js';
 
 /**
  * Helper to format the policy denial error.
@@ -118,6 +120,7 @@ export async function updatePolicy(
   context: AgentLoopContext,
   messageBus: MessageBus,
   toolInvocation?: AnyToolInvocation,
+  policySuggestion?: PolicySuggestion | null,
 ): Promise<void> {
   // Mode Transitions (AUTO_EDIT)
   if (isAutoEditTransition(tool, outcome)) {
@@ -166,6 +169,7 @@ export async function updatePolicy(
       messageBus,
       persistScope,
       modes,
+      policySuggestion,
     );
     return;
   }
@@ -177,6 +181,7 @@ export async function updatePolicy(
     confirmationDetails,
     messageBus,
     persistScope,
+    policySuggestion,
     toolInvocation,
     context.config,
     modes,
@@ -210,6 +215,7 @@ async function handleStandardPolicyUpdate(
   confirmationDetails: SerializableConfirmationDetails | undefined,
   messageBus: MessageBus,
   persistScope?: 'workspace' | 'user',
+  policySuggestion?: PolicySuggestion | null,
   toolInvocation?: AnyToolInvocation,
   config?: Config,
   modes?: ApprovalMode[],
@@ -221,7 +227,15 @@ async function handleStandardPolicyUpdate(
     const options: PolicyUpdateOptions =
       toolInvocation?.getPolicyUpdateOptions?.(outcome) || {};
 
-    if (!options.commandPrefix && confirmationDetails?.type === 'exec') {
+    // Use LLM suggestion if available, otherwise fall back to heuristic
+    if (policySuggestion?.commandPrefix) {
+      options.commandPrefix = policySuggestion.commandPrefix;
+    } else if (
+      policySuggestion?.argsPattern &&
+      isSafeRegExp(policySuggestion.argsPattern)
+    ) {
+      options.argsPattern = policySuggestion.argsPattern;
+    } else if (!options.commandPrefix && confirmationDetails?.type === 'exec') {
       options.commandPrefix = confirmationDetails.rootCommands;
     } else if (!options.argsPattern && confirmationDetails?.type === 'edit') {
       const filePath = config
@@ -255,6 +269,7 @@ async function handleMcpPolicyUpdate(
   messageBus: MessageBus,
   persistScope?: 'workspace' | 'user',
   modes?: ApprovalMode[],
+  _policySuggestion?: PolicySuggestion | null,
 ): Promise<void> {
   const isMcpAlways =
     outcome === ToolConfirmationOutcome.ProceedAlways ||

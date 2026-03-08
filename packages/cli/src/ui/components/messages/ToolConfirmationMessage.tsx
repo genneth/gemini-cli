@@ -18,6 +18,8 @@ import {
   ApprovalMode,
   hasRedirection,
   debugLogger,
+  MessageBusType,
+  type PolicySuggestionMessage,
 } from '@google/gemini-cli-core';
 import { useToolActions } from '../../contexts/ToolActionsContext.js';
 import {
@@ -49,6 +51,7 @@ import { isShellTool } from './ToolShared.js';
 
 export interface ToolConfirmationMessageProps {
   callId: string;
+  correlationId?: string;
   confirmationDetails: SerializableConfirmationDetails;
   config: Config;
   getPreferredEditor: () => EditorType | undefined;
@@ -62,6 +65,7 @@ export const ToolConfirmationMessage: React.FC<
   ToolConfirmationMessageProps
 > = ({
   callId,
+  correlationId,
   confirmationDetails,
   config,
   getPreferredEditor,
@@ -72,6 +76,25 @@ export const ToolConfirmationMessage: React.FC<
 }) => {
   const keyMatchers = useKeyMatchers();
   const { confirm, isDiffingEnabled } = useToolActions();
+  const [policySuggestionDescription, setPolicySuggestionDescription] =
+    useState<string | null>(null);
+
+  // Subscribe to LLM-generated policy suggestions for this confirmation
+  useEffect(() => {
+    if (!correlationId) return;
+
+    const messageBus = config.getMessageBus();
+    const handler = (msg: PolicySuggestionMessage) => {
+      if (msg.correlationId === correlationId && msg.suggestion?.description) {
+        setPolicySuggestionDescription(msg.suggestion.description);
+      }
+    };
+    messageBus.on(MessageBusType.POLICY_SUGGESTION, handler);
+    return () => {
+      messageBus.off(MessageBusType.POLICY_SUGGESTION, handler);
+    };
+  }, [config, correlationId]);
+
   const [mcpDetailsExpansionState, setMcpDetailsExpansionState] = useState<{
     callId: string;
     expanded: boolean;
@@ -426,6 +449,20 @@ export const ToolConfirmationMessage: React.FC<
         key: 'No, suggest changes (esc)',
       });
     }
+    // Add LLM-suggested scope description as sublabel on approval options
+    if (policySuggestionDescription) {
+      for (const option of options) {
+        if (
+          option.value === ToolConfirmationOutcome.ProceedAlways ||
+          option.value === ToolConfirmationOutcome.ProceedAlwaysTool ||
+          option.value === ToolConfirmationOutcome.ProceedAlwaysServer ||
+          option.value === ToolConfirmationOutcome.ProceedAlwaysAndSave
+        ) {
+          option.sublabel = `  Suggested: ${policySuggestionDescription}`;
+        }
+      }
+    }
+
     return options;
   }, [
     confirmationDetails,
@@ -433,6 +470,7 @@ export const ToolConfirmationMessage: React.FC<
     allowPermanentApproval,
     config,
     isDiffingEnabled,
+    policySuggestionDescription,
   ]);
 
   const availableBodyContentHeight = useCallback(() => {
