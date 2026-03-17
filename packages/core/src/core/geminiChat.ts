@@ -274,7 +274,7 @@ export class GeminiChat {
     return this.systemInstruction;
   }
 
-  getTools(): Tool[] {
+  getTools(): readonly Tool[] {
     return [...this.tools];
   }
 
