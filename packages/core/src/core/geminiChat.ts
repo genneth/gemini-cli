@@ -270,6 +270,14 @@ export class GeminiChat {
     this.systemInstruction = sysInstr;
   }
 
+  getSystemInstruction(): string {
+    return this.systemInstruction;
+  }
+
+  getTools(): Tool[] {
+    return [...this.tools];
+  }
+
   /**
    * Sends a message to the model and returns the response in chunks.
    *
