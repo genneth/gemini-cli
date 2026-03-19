@@ -76,6 +76,7 @@ export const ToolConfirmationMessage: React.FC<
 }) => {
   const keyMatchers = useKeyMatchers();
   const { confirm, isDiffingEnabled } = useToolActions();
+  const smartScoping = config.enableSmartPolicyScoping && !!correlationId;
   const [policySuggestionDescription, setPolicySuggestionDescription] =
     useState<string | null>(null);
 
@@ -376,7 +377,10 @@ export const ToolConfirmationMessage: React.FC<
       });
     }
     // Add LLM-suggested scope description as sublabel on approval options
-    if (policySuggestionDescription) {
+    if (smartScoping) {
+      const sublabel = policySuggestionDescription
+        ? `  Suggested scope: ${policySuggestionDescription}`
+        : '  Suggesting scope\u2026';
       for (const option of options) {
         if (
           option.value === ToolConfirmationOutcome.ProceedAlways ||
@@ -384,7 +388,7 @@ export const ToolConfirmationMessage: React.FC<
           option.value === ToolConfirmationOutcome.ProceedAlwaysServer ||
           option.value === ToolConfirmationOutcome.ProceedAlwaysAndSave
         ) {
-          option.sublabel = `  Suggested: ${policySuggestionDescription}`;
+          option.sublabel = sublabel;
         }
       }
     }
@@ -396,6 +400,7 @@ export const ToolConfirmationMessage: React.FC<
     allowPermanentApproval,
     config,
     isDiffingEnabled,
+    smartScoping,
     policySuggestionDescription,
   ]);
 
