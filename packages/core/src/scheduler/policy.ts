@@ -24,14 +24,13 @@ import {
   type AnyToolInvocation,
   type PolicyUpdateOptions,
 } from '../tools/tools.js';
-import { buildFilePathArgsPattern } from '../policy/utils.js';
+import { buildFilePathArgsPattern , isSafeRegExp } from '../policy/utils.js';
 import { makeRelative } from '../utils/paths.js';
 import { DiscoveredMCPTool, formatMcpToolName } from '../tools/mcp-tool.js';
 import { EDIT_TOOL_NAMES } from '../tools/tool-names.js';
 import type { ValidatingToolCall } from './types.js';
 import type { AgentLoopContext } from '../config/agent-loop-context.js';
 import type { PolicySuggestion } from '../policy/suggestion-generator.js';
-import { isSafeRegExp } from '../policy/utils.js';
 
 /**
  * Helper to format the policy denial error.
@@ -169,7 +168,6 @@ export async function updatePolicy(
       messageBus,
       persistScope,
       modes,
-      policySuggestion,
     );
     return;
   }
@@ -269,7 +267,6 @@ async function handleMcpPolicyUpdate(
   messageBus: MessageBus,
   persistScope?: 'workspace' | 'user',
   modes?: ApprovalMode[],
-  _policySuggestion?: PolicySuggestion | null,
 ): Promise<void> {
   const isMcpAlways =
     outcome === ToolConfirmationOutcome.ProceedAlways ||
