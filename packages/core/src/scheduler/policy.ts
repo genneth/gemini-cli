@@ -24,7 +24,7 @@ import {
   type AnyToolInvocation,
   type PolicyUpdateOptions,
 } from '../tools/tools.js';
-import { buildFilePathArgsPattern , isSafeRegExp } from '../policy/utils.js';
+import { buildFilePathArgsPattern, isSafeRegExp } from '../policy/utils.js';
 import { makeRelative } from '../utils/paths.js';
 import { DiscoveredMCPTool, formatMcpToolName } from '../tools/mcp-tool.js';
 import { EDIT_TOOL_NAMES } from '../tools/tool-names.js';
@@ -168,6 +168,7 @@ export async function updatePolicy(
       messageBus,
       persistScope,
       modes,
+      policySuggestion,
     );
     return;
   }
@@ -267,6 +268,7 @@ async function handleMcpPolicyUpdate(
   messageBus: MessageBus,
   persistScope?: 'workspace' | 'user',
   modes?: ApprovalMode[],
+  policySuggestion?: PolicySuggestion | null,
 ): Promise<void> {
   const isMcpAlways =
     outcome === ToolConfirmationOutcome.ProceedAlways ||
@@ -278,7 +280,14 @@ async function handleMcpPolicyUpdate(
     return;
   }
 
+  // Use LLM-suggested tool name if available and the user chose per-tool scope
   let toolName = tool.name;
+  if (
+    policySuggestion?.toolName &&
+    outcome !== ToolConfirmationOutcome.ProceedAlwaysServer
+  ) {
+    toolName = policySuggestion.toolName;
+  }
   const persist = outcome === ToolConfirmationOutcome.ProceedAlwaysAndSave;
 
   // If "Always allow all tools from this server", use the wildcard pattern
