@@ -77,8 +77,9 @@ export const ToolConfirmationMessage: React.FC<
   const keyMatchers = useKeyMatchers();
   const { confirm, isDiffingEnabled } = useToolActions();
   const smartScoping = config.enableSmartPolicyScoping && !!correlationId;
-  const [policySuggestionDescription, setPolicySuggestionDescription] =
-    useState<string | null>(null);
+  const [policySuggestion, setPolicySuggestion] = useState<
+    PolicySuggestionMessage['suggestion'] | null
+  >(null);
 
   // Subscribe to LLM-generated policy suggestions for this confirmation
   useEffect(() => {
@@ -87,7 +88,7 @@ export const ToolConfirmationMessage: React.FC<
     const messageBus = config.getMessageBus();
     const handler = (msg: PolicySuggestionMessage) => {
       if (msg.correlationId === correlationId && msg.suggestion?.description) {
-        setPolicySuggestionDescription(msg.suggestion.description);
+        setPolicySuggestion(msg.suggestion);
       }
     };
     messageBus.on(MessageBusType.POLICY_SUGGESTION, handler);
@@ -452,9 +453,22 @@ export const ToolConfirmationMessage: React.FC<
     }
     // Add LLM-suggested scope description as sublabel on approval options
     if (smartScoping) {
-      const sublabel = policySuggestionDescription
-        ? `  Suggested scope: ${policySuggestionDescription}`
-        : '  Suggesting scope\u2026';
+      let sublabel: string;
+      if (!policySuggestion) {
+        sublabel = '  Suggesting scope\u2026';
+      } else {
+        // Show the description and the concrete rule that will be written
+        const ruleDetail = policySuggestion.commandPrefix
+          ? `prefix: ${Array.isArray(policySuggestion.commandPrefix) ? policySuggestion.commandPrefix.join(', ') : policySuggestion.commandPrefix}`
+          : policySuggestion.argsPattern
+            ? `pattern: ${policySuggestion.argsPattern}`
+            : policySuggestion.toolName
+              ? `tool: ${policySuggestion.toolName}`
+              : '';
+        sublabel = ruleDetail
+          ? `  ${policySuggestion.description} [${ruleDetail}]`
+          : `  ${policySuggestion.description}`;
+      }
       for (const option of options) {
         if (
           option.value === ToolConfirmationOutcome.ProceedAlways ||
@@ -475,7 +489,7 @@ export const ToolConfirmationMessage: React.FC<
     config,
     isDiffingEnabled,
     smartScoping,
-    policySuggestionDescription,
+    policySuggestion,
   ]);
 
   const availableBodyContentHeight = useCallback(() => {
