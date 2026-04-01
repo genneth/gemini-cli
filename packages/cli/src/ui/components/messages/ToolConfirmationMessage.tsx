@@ -451,13 +451,14 @@ export const ToolConfirmationMessage: React.FC<
         key: 'No, suggest changes (esc)',
       });
     }
-    // Add LLM-suggested scope description as sublabel on approval options
+    // Add LLM-suggested scope description as sublabel on tool-scoped options.
+    // The server-wide option ("Allow all server tools") should not show a
+    // per-tool scope since it bypasses tool-level scoping entirely.
     if (smartScoping) {
       let sublabel: string;
       if (!policySuggestion) {
         sublabel = '  Suggesting scope\u2026';
       } else {
-        // Show the description and the concrete rule that will be written
         const ruleDetail = policySuggestion.commandPrefix
           ? `prefix: ${Array.isArray(policySuggestion.commandPrefix) ? policySuggestion.commandPrefix.join(', ') : policySuggestion.commandPrefix}`
           : policySuggestion.argsPattern
@@ -473,7 +474,6 @@ export const ToolConfirmationMessage: React.FC<
         if (
           option.value === ToolConfirmationOutcome.ProceedAlways ||
           option.value === ToolConfirmationOutcome.ProceedAlwaysTool ||
-          option.value === ToolConfirmationOutcome.ProceedAlwaysServer ||
           option.value === ToolConfirmationOutcome.ProceedAlwaysAndSave
         ) {
           option.sublabel = sublabel;
