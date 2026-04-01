@@ -19,6 +19,13 @@ import {
 import type { Config } from '../config/config.js';
 import { coreEvents, CoreEvent } from '../utils/events.js';
 
+export interface CategorizedPaths {
+  global: string[];
+  extension: string[];
+  project: string[];
+  userProject: string[];
+}
+
 export class MemoryContextManager {
   private readonly loadedPaths: Set<string> = new Set();
   private readonly loadedFileIdentities: Set<string> = new Set();
@@ -27,6 +34,12 @@ export class MemoryContextManager {
   private extensionMemory: string = '';
   private projectMemory: string = '';
   private userProjectMemoryContent: string = '';
+  private categorizedPaths: CategorizedPaths = {
+    global: [],
+    extension: [],
+    project: [],
+    userProject: [],
+  };
 
   constructor(config: Config) {
     this.config = config;
@@ -38,10 +51,17 @@ export class MemoryContextManager {
   async refresh(): Promise<void> {
     this.loadedPaths.clear();
     this.loadedFileIdentities.clear();
+    this.categorizedPaths = {
+      global: [],
+      extension: [],
+      project: [],
+      userProject: [],
+    };
 
     const paths = await this.discoverMemoryPaths();
     const contentsMap = await this.loadMemoryContents(paths);
 
+    this.storeCategorizedPaths(paths, contentsMap);
     this.categorizeMemoryContents(paths, contentsMap);
     this.emitMemoryChanged();
   }
@@ -103,6 +123,25 @@ export class MemoryContextManager {
     }
 
     return new Map(allContents.map((c) => [c.filePath, c]));
+  }
+
+  private storeCategorizedPaths(
+    paths: {
+      global: string[];
+      extension: string[];
+      project: string[];
+      userProjectMemory: string[];
+    },
+    contentsMap: Map<string, GeminiFileContent>,
+  ) {
+    const loaded = (arr: string[]) =>
+      arr.filter((p) => contentsMap.get(p)?.content != null);
+    this.categorizedPaths = {
+      global: loaded(paths.global),
+      extension: loaded(paths.extension),
+      project: loaded(paths.project),
+      userProject: loaded(paths.userProjectMemory),
+    };
   }
 
   private categorizeMemoryContents(
@@ -199,5 +238,9 @@ export class MemoryContextManager {
 
   getLoadedPaths(): ReadonlySet<string> {
     return this.loadedPaths;
+  }
+
+  getCategorizedLoadedPaths(): CategorizedPaths {
+    return this.categorizedPaths;
   }
 }

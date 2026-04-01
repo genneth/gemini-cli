@@ -678,6 +678,25 @@ export class McpClientManager {
     return instructions.join('\n\n');
   }
 
+  /**
+   * Returns per-server instruction metadata (server name and raw instruction
+   * text) for servers that have contributed instructions to the context.
+   */
+  getMcpInstructionsByServer(): Array<{
+    serverName: string;
+    instructions: string;
+  }> {
+    const result: Array<{ serverName: string; instructions: string }> = [];
+    for (const client of this.clients.values()) {
+      const serverName = client.getServerName();
+      const instructions = client.getInstructions();
+      if (instructions) {
+        result.push({ serverName, instructions });
+      }
+    }
+    return result;
+  }
+
   private isRefreshingMcpContext: boolean = false;
   private pendingMcpContextRefresh: boolean = false;
 

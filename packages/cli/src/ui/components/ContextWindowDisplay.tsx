@@ -5,39 +5,15 @@
  */
 
 import type React from 'react';
-import { Box, Text } from 'ink';
+import { Box, Text, useStdout } from 'ink';
+import * as path from 'node:path';
 import { theme } from '../semantic-colors.js';
-import type { ContextWindowData } from '../types.js';
+import type { ContextWindowData, MemoryFileInfo } from '../types.js';
 
-const BAR_WIDTH = 60;
+const MIN_BAR_WIDTH = 30;
+const MAX_BAR_WIDTH = 80;
 
-/**
- * Color mapping for each context category.
- * Chosen for perceptual distinctness and color-blind accessibility:
- * blue, purple, yellow, cyan avoid the red-green confusion axis.
- */
-const categoryColors = {
-  get system() {
-    return theme.text.link;
-  }, // AccentBlue
-  get memory() {
-    return theme.status.warning;
-  }, // AccentYellow
-  get tools() {
-    return theme.text.accent;
-  }, // AccentPurple
-  get conversation() {
-    return theme.ui.symbol;
-  }, // AccentCyan
-  get free() {
-    return theme.ui.dark;
-  }, // DarkGray
-  get marker() {
-    return theme.text.primary;
-  }, // Foreground
-};
-
-/** Format a token count compactly: 1,200 → "1.2k", 48,446 → "48k", 1,048,576 → "1,049k" */
+/** Format a token count compactly: 1,200 -> "1.2k", 48,446 -> "48k" */
 function fmtCompact(n: number): string {
   if (n >= 10_000) return `${Math.round(n / 1_000)}k`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
@@ -49,47 +25,110 @@ function fmtNum(n: number): string {
   return Math.floor(n).toLocaleString();
 }
 
-/**
- * Builds the sub-bar annotation line, aligning the compress label with
- * the │ marker on the bar above. Prefers └ to the right of the marker;
- * falls back to ┘ on the left if the label would extend past the bar.
- */
-function buildSubBarLine(
-  data: ContextWindowData,
-  total: number,
-  markerPos: number,
-): string {
-  const leftLabel = ` used (${((data.tokensUsed / total) * 100).toFixed(0)}%)`;
-  const pctText =
-    'compress at ' + (data.compressionThreshold * 100).toFixed(0) + '%';
-  const lineWidth = BAR_WIDTH + 2;
+/** Shorten a file path relative to HOME or CWD for display. */
+function shortenPath(filePath: string): string {
+  const home = process.env['HOME'] || process.env['USERPROFILE'] || '';
+  const cwd = process.cwd();
 
-  // +1 for the ▐ border character
-  const markerCol = markerPos + 1;
-
-  // Try placing └ label to the RIGHT of the marker
-  const rightLabel = '\u2514 ' + pctText;
-  if (markerCol + rightLabel.length <= lineWidth) {
-    const gap = Math.max(1, markerCol - leftLabel.length);
-    return leftLabel + ' '.repeat(gap) + rightLabel;
+  // Prefer CWD-relative for project files
+  if (cwd && filePath.startsWith(cwd)) {
+    const rel = path.relative(cwd, filePath);
+    return './' + rel.replace(/\\/g, '/');
   }
-
-  // Fall back to placing ┘ label to the LEFT of the marker
-  const leftArrow = pctText + ' \u2518';
-  const arrowStart = markerCol - leftArrow.length + 1;
-  const gap = Math.max(1, arrowStart - leftLabel.length);
-  return leftLabel + ' '.repeat(gap) + leftArrow;
+  // Fall back to HOME-relative
+  if (home && filePath.startsWith(home)) {
+    const rel = path.relative(home, filePath);
+    return '~/' + rel.replace(/\\/g, '/');
+  }
+  return filePath.replace(/\\/g, '/');
 }
 
+const CATEGORY_LABELS: Record<MemoryFileInfo['category'], string> = {
+  global: 'global',
+  project: 'project',
+  extension: 'extension',
+  userProject: 'user',
+};
+
 /**
- * Renders a segmented bar showing proportional usage by category,
- * with a compression threshold marker.
+ * Color mapping for each context category.
+ * Blue, purple, yellow, cyan avoid the red-green confusion axis.
  */
-const SegmentedBar: React.FC<{ data: ContextWindowData }> = ({ data }) => {
+const categoryColors = {
+  get system() {
+    return theme.text.link;
+  },
+  get memory() {
+    return theme.status.warning;
+  },
+  get tools() {
+    return theme.text.accent;
+  },
+  get conversation() {
+    return theme.ui.symbol;
+  },
+  get free() {
+    return theme.ui.dark;
+  },
+  get marker() {
+    return theme.text.primary;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Layout primitives matching StatsDisplay conventions
+// ---------------------------------------------------------------------------
+
+const LABEL_WIDTH = 28;
+
+const StatRow: React.FC<{
+  label: string;
+  color?: string;
+  children: React.ReactNode;
+}> = ({ label, color, children }) => (
+  <Box>
+    <Box width={LABEL_WIDTH}>
+      <Text color={color ?? theme.text.link}>{label}</Text>
+    </Box>
+    {children}
+  </Box>
+);
+
+const SubRow: React.FC<{
+  label: string;
+  children: React.ReactNode;
+}> = ({ label, children }) => (
+  <Box paddingLeft={2}>
+    <Box width={LABEL_WIDTH - 2}>
+      <Text color={theme.text.secondary}>{label}</Text>
+    </Box>
+    {children}
+  </Box>
+);
+
+const Section: React.FC<{
+  title: string;
+  children: React.ReactNode;
+}> = ({ title, children }) => (
+  <Box flexDirection="column" marginBottom={1}>
+    <Text bold color={theme.text.primary}>
+      {title}
+    </Text>
+    {children}
+  </Box>
+);
+
+// ---------------------------------------------------------------------------
+// Segmented bar (responsive)
+// ---------------------------------------------------------------------------
+
+const SegmentedBar: React.FC<{
+  data: ContextWindowData;
+  barWidth: number;
+}> = ({ data, barWidth }) => {
   const total = data.tokenLimit;
   if (total <= 0) return null;
 
-  // Compute character counts for each segment
   const segments = [
     { tokens: data.systemPromptTokens, color: categoryColors.system },
     { tokens: data.memoryTokens, color: categoryColors.memory },
@@ -99,41 +138,34 @@ const SegmentedBar: React.FC<{ data: ContextWindowData }> = ({ data }) => {
 
   const usedChars = segments.map((s) => {
     const fraction = s.tokens / total;
-    return Math.max(fraction > 0 ? 1 : 0, Math.round(fraction * BAR_WIDTH));
+    return Math.max(fraction > 0 ? 1 : 0, Math.round(fraction * barWidth));
   });
 
-  // Ensure we don't exceed BAR_WIDTH for the used portion
   let totalUsedChars = usedChars.reduce((a, b) => a + b, 0);
-  while (totalUsedChars > BAR_WIDTH) {
+  while (totalUsedChars > barWidth) {
     const maxIdx = usedChars.indexOf(Math.max(...usedChars));
     usedChars[maxIdx]--;
     totalUsedChars--;
   }
 
-  const freeChars = BAR_WIDTH - totalUsedChars;
+  const freeChars = barWidth - totalUsedChars;
+  const markerPos = Math.round(data.compressionThreshold * barWidth);
 
-  // Compression threshold marker position
-  const markerPos = Math.round(data.compressionThreshold * BAR_WIDTH);
-
-  // Build the bar as an array of { char, color } entries
+  // Build bar entries
   const bar: Array<{ char: string; color: string }> = [];
-
   for (let i = 0; i < segments.length; i++) {
     for (let j = 0; j < usedChars[i]; j++) {
-      bar.push({ char: '\u2588', color: segments[i].color }); // █
+      bar.push({ char: '\u2588', color: segments[i].color });
     }
   }
-
   for (let i = 0; i < freeChars; i++) {
-    bar.push({ char: '\u2591', color: categoryColors.free }); // ░
+    bar.push({ char: '\u2591', color: categoryColors.free });
+  }
+  if (markerPos > 0 && markerPos < barWidth) {
+    bar[markerPos] = { char: '\u2502', color: categoryColors.marker };
   }
 
-  // Insert compression marker (replace the character at that position)
-  if (markerPos > 0 && markerPos < BAR_WIDTH) {
-    bar[markerPos] = { char: '\u2502', color: categoryColors.marker }; // │
-  }
-
-  // Group consecutive characters with the same color for efficient rendering
+  // Group consecutive same-color chars
   const groups: Array<{ text: string; color: string }> = [];
   for (const entry of bar) {
     const last = groups[groups.length - 1];
@@ -142,6 +174,25 @@ const SegmentedBar: React.FC<{ data: ContextWindowData }> = ({ data }) => {
     } else {
       groups.push({ text: entry.char, color: entry.color });
     }
+  }
+
+  // Sub-bar labels
+  const pctUsedLabel = `used (${((data.tokensUsed / total) * 100).toFixed(0)}%)`;
+  const compressLabel = `compress at ${(data.compressionThreshold * 100).toFixed(0)}%`;
+
+  // Try to fit the compress label after the marker
+  const markerCol = markerPos + 1;
+  const rightLabel = '\u2514 ' + compressLabel;
+  const lineWidth = barWidth + 2;
+  let subBarLine: string;
+  if (markerCol + rightLabel.length <= lineWidth) {
+    const gap = Math.max(1, markerCol - pctUsedLabel.length);
+    subBarLine = pctUsedLabel + ' '.repeat(gap) + rightLabel;
+  } else {
+    const leftArrow = compressLabel + ' \u2518';
+    const arrowStart = markerCol - leftArrow.length + 1;
+    const gap = Math.max(1, arrowStart - pctUsedLabel.length);
+    subBarLine = pctUsedLabel + ' '.repeat(gap) + leftArrow;
   }
 
   return (
@@ -155,88 +206,46 @@ const SegmentedBar: React.FC<{ data: ContextWindowData }> = ({ data }) => {
         ))}
         <Text color={categoryColors.free}>{'\u258C'}</Text>
       </Box>
-
-      {/* Sub-bar labels: position the ┘/└ to align with the │ marker */}
-      <Box flexDirection="row" width={BAR_WIDTH + 2}>
-        <Text color={theme.text.secondary}>
-          {buildSubBarLine(data, total, markerPos)}
-        </Text>
+      <Box>
+        <Text color={theme.text.secondary}>{subBarLine}</Text>
       </Box>
     </Box>
   );
 };
 
-/**
- * A single row in the breakdown table.
- */
-const CategoryRow: React.FC<{
-  label: string;
-  tokens: number;
-  pctOfLimit: number;
-  color: string;
-  detail?: string;
-}> = ({ label, tokens, pctOfLimit, color, detail }) => (
-  <Box flexDirection="row">
-    <Box width={20}>
-      <Text color={color}>{label}</Text>
-    </Box>
-    <Box width={12} justifyContent="flex-end">
-      <Text>{fmtNum(tokens)}</Text>
-    </Box>
-    <Box width={8} justifyContent="flex-end">
-      <Text color={theme.text.secondary}>{pctOfLimit.toFixed(1)}%</Text>
-    </Box>
-    {detail && (
-      <Box marginLeft={3}>
-        <Text color={theme.text.secondary}>{detail}</Text>
-      </Box>
-    )}
-  </Box>
-);
-
-/**
- * A sub-row for memory breakdown detail (indented, dimmer).
- */
-const MemorySubRow: React.FC<{
-  label: string;
-  tokens: number;
-}> = ({ label, tokens }) => {
-  if (tokens <= 0) return null;
-  return (
-    <Box flexDirection="row">
-      <Box width={20}>
-        <Text color={theme.text.secondary}> {label}</Text>
-      </Box>
-      <Box width={12} justifyContent="flex-end">
-        <Text color={theme.text.secondary}>{fmtNum(tokens)}</Text>
-      </Box>
-    </Box>
-  );
-};
+// ---------------------------------------------------------------------------
+// Main display
+// ---------------------------------------------------------------------------
 
 export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
   data,
 }) => {
+  const { stdout } = useStdout();
+  const termWidth = stdout?.columns ?? 80;
+  // Reserve space for borders (2) + padding (4)
+  const barWidth = Math.max(
+    MIN_BAR_WIDTH,
+    Math.min(MAX_BAR_WIDTH, termWidth - 6),
+  );
+
   const pctUsed = data.tokenLimit > 0 ? data.tokensUsed / data.tokenLimit : 0;
   const remaining = Math.max(0, data.tokenLimit - data.tokensUsed);
 
-  const turnsEstimate =
+  const turnsNote =
     data.estimatedTurnsRemaining !== null
       ? ` \u00B7 \u2248 ${fmtNum(data.estimatedTurnsRemaining)} turns at current rate`
       : '';
 
-  // Show actual vs estimated when API-reported tokens are available
   const actualNote =
     data.actualPromptTokens !== null
-      ? ` (API reported: ${fmtCompact(data.actualPromptTokens)})`
+      ? `  (API: ${fmtCompact(data.actualPromptTokens)})`
       : '';
 
-  // Context management features
+  // Context features summary
   const features: string[] = [];
-  if (data.contextManagementEnabled) {
-    features.push('auto-distillation');
-  }
-  const featuresNote =
+  if (data.contextManagementEnabled) features.push('auto-distillation');
+  if (data.jitContextEnabled) features.push('JIT context');
+  const strategyNote =
     features.length > 0 ? features.join(', ') : 'compression only';
 
   return (
@@ -246,35 +255,22 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
       flexDirection="column"
       paddingTop={1}
       paddingX={2}
+      width="100%"
+      overflow="hidden"
     >
       {/* Header */}
-      <Box
-        flexDirection="row"
-        justifyContent="space-between"
-        width={BAR_WIDTH + 2}
-      >
-        <Box flexDirection="row">
-          <Text bold color={theme.text.accent}>
-            Context
-          </Text>
-          <Text color={theme.text.secondary}>
-            {' \u00B7 '}
-            {data.model}
-          </Text>
-        </Box>
+      <Box flexDirection="row" marginBottom={1}>
+        <Text bold color={theme.text.accent}>
+          Context
+        </Text>
         <Text color={theme.text.secondary}>
-          {fmtCompact(data.tokensUsed)} / {fmtCompact(data.tokenLimit)} tokens
-          {actualNote}
+          {' \u00B7 '}
+          {data.model}
         </Text>
       </Box>
 
-      {/* Segmented bar */}
-      <Box height={1} />
-      <SegmentedBar data={data} />
-
-      {/* Remaining headline */}
-      <Box height={1} />
-      <Box>
+      {/* Token headline */}
+      <Box marginBottom={1}>
         <Text
           bold
           color={
@@ -287,82 +283,135 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
         >
           {fmtCompact(remaining)} tokens remaining
         </Text>
-        <Text color={theme.text.secondary}>{turnsEstimate}</Text>
+        <Text color={theme.text.secondary}>
+          {' '}
+          of {fmtCompact(data.tokenLimit)}
+          {actualNote}
+          {turnsNote}
+        </Text>
       </Box>
 
-      {/* Breakdown table */}
+      {/* Segmented bar */}
+      <SegmentedBar data={data} barWidth={barWidth} />
+
       <Box height={1} />
-      <Box flexDirection="column">
-        <CategoryRow
-          label="System prompt"
-          tokens={data.systemPromptTokens}
-          pctOfLimit={
-            data.tokenLimit > 0
-              ? (data.systemPromptTokens / data.tokenLimit) * 100
-              : 0
-          }
-          color={categoryColors.system}
-        />
-        <CategoryRow
-          label="Tool schemas"
-          tokens={data.toolDeclarationTokens}
-          pctOfLimit={
-            data.tokenLimit > 0
-              ? (data.toolDeclarationTokens / data.tokenLimit) * 100
-              : 0
-          }
-          color={categoryColors.tools}
-          detail={`${data.toolCount} tools`}
-        />
-        <CategoryRow
-          label="Memory files"
-          tokens={data.memoryTokens}
-          pctOfLimit={
-            data.tokenLimit > 0
-              ? (data.memoryTokens / data.tokenLimit) * 100
-              : 0
-          }
-          color={categoryColors.memory}
-          detail={`${data.memoryFileCount} files`}
-        />
-        {data.memoryBreakdown && (
+
+      {/* Breakdown */}
+      <Section title="Breakdown">
+        <StatRow label="System prompt" color={categoryColors.system}>
+          <Text>{fmtNum(data.systemPromptTokens)}</Text>
+          <Text color={theme.text.secondary}>
+            {'  '}
+            {data.tokenLimit > 0
+              ? ((data.systemPromptTokens / data.tokenLimit) * 100).toFixed(1)
+              : '0.0'}
+            %
+          </Text>
+        </StatRow>
+
+        <StatRow label="Memory files" color={categoryColors.memory}>
+          <Text>{fmtNum(data.memoryTokens)}</Text>
+          <Text color={theme.text.secondary}>
+            {'  '}
+            {data.tokenLimit > 0
+              ? ((data.memoryTokens / data.tokenLimit) * 100).toFixed(1)
+              : '0.0'}
+            %{'  '}
+            {data.memoryFileCount} file{data.memoryFileCount !== 1 ? 's' : ''}
+          </Text>
+        </StatRow>
+
+        {/* Per-file memory breakdown */}
+        {data.memoryFiles.length > 0 &&
+          data.memoryFiles.map((f, i) => (
+            <SubRow key={i} label={shortenPath(f.path)}>
+              <Text color={theme.text.secondary}>
+                {CATEGORY_LABELS[f.category]}
+              </Text>
+            </SubRow>
+          ))}
+
+        {/* Category totals when files aren't available but breakdown is */}
+        {data.memoryFiles.length === 0 && data.memoryBreakdown && (
           <>
-            <MemorySubRow
-              label="\u2514 global"
-              tokens={data.memoryBreakdown.global}
-            />
-            <MemorySubRow
-              label="\u2514 project"
-              tokens={data.memoryBreakdown.project}
-            />
-            <MemorySubRow
-              label="\u2514 extensions"
-              tokens={data.memoryBreakdown.extension}
-            />
-            <MemorySubRow
-              label="\u2514 user project"
-              tokens={data.memoryBreakdown.userProject}
-            />
+            {data.memoryBreakdown.global > 0 && (
+              <SubRow label="global">
+                <Text color={theme.text.secondary}>
+                  {fmtNum(data.memoryBreakdown.global)}
+                </Text>
+              </SubRow>
+            )}
+            {data.memoryBreakdown.project > 0 && (
+              <SubRow label="project">
+                <Text color={theme.text.secondary}>
+                  {fmtNum(data.memoryBreakdown.project)}
+                </Text>
+              </SubRow>
+            )}
+            {data.memoryBreakdown.extension > 0 && (
+              <SubRow label="extensions">
+                <Text color={theme.text.secondary}>
+                  {fmtNum(data.memoryBreakdown.extension)}
+                </Text>
+              </SubRow>
+            )}
+            {data.memoryBreakdown.userProject > 0 && (
+              <SubRow label="user project">
+                <Text color={theme.text.secondary}>
+                  {fmtNum(data.memoryBreakdown.userProject)}
+                </Text>
+              </SubRow>
+            )}
           </>
         )}
-        <CategoryRow
-          label="Conversation"
-          tokens={data.conversationTokens}
-          pctOfLimit={
-            data.tokenLimit > 0
-              ? (data.conversationTokens / data.tokenLimit) * 100
-              : 0
-          }
-          color={categoryColors.conversation}
-          detail={`${data.turnCount} turns`}
-        />
-      </Box>
 
-      {/* Context management status */}
-      <Box height={1} />
+        {/* MCP instructions */}
+        {data.mcpInstructions.length > 0 && (
+          <>
+            <SubRow label="MCP instructions">
+              <Text color={theme.text.secondary}>
+                {fmtNum(data.mcpInstructionTokens)} tokens
+              </Text>
+            </SubRow>
+            {data.mcpInstructions.map((mcp, i) => (
+              <SubRow key={i} label={`  ${mcp.serverName}`}>
+                <Text color={theme.text.secondary}>{fmtNum(mcp.tokens)}</Text>
+              </SubRow>
+            ))}
+          </>
+        )}
+
+        <StatRow label="Tool schemas" color={categoryColors.tools}>
+          <Text>{fmtNum(data.toolDeclarationTokens)}</Text>
+          <Text color={theme.text.secondary}>
+            {'  '}
+            {data.tokenLimit > 0
+              ? ((data.toolDeclarationTokens / data.tokenLimit) * 100).toFixed(
+                  1,
+                )
+              : '0.0'}
+            %{'  '}
+            {data.toolCount} tool{data.toolCount !== 1 ? 's' : ''}
+          </Text>
+        </StatRow>
+
+        <StatRow label="Conversation" color={categoryColors.conversation}>
+          <Text>{fmtNum(data.conversationTokens)}</Text>
+          <Text color={theme.text.secondary}>
+            {'  '}
+            {data.tokenLimit > 0
+              ? ((data.conversationTokens / data.tokenLimit) * 100).toFixed(1)
+              : '0.0'}
+            %{'  '}
+            {data.turnCount} turn{data.turnCount !== 1 ? 's' : ''}
+          </Text>
+        </StatRow>
+      </Section>
+
+      {/* Footer */}
       <Box>
         <Text color={theme.text.secondary}>
-          Context strategy: {featuresNote}
+          Context strategy: {strategyNote}
         </Text>
       </Box>
     </Box>

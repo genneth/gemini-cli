@@ -385,6 +385,17 @@ export interface MemoryBreakdown {
   userProject: number;
 }
 
+export interface MemoryFileInfo {
+  path: string;
+  tokens: number;
+  category: 'global' | 'project' | 'extension' | 'userProject';
+}
+
+export interface McpInstructionInfo {
+  serverName: string;
+  tokens: number;
+}
+
 export interface ContextWindowData {
   model: string;
   tokenLimit: number;
@@ -394,6 +405,9 @@ export interface ContextWindowData {
   memoryTokens: number;
   memoryFileCount: number;
   memoryBreakdown: MemoryBreakdown | null;
+  memoryFiles: MemoryFileInfo[];
+  mcpInstructions: McpInstructionInfo[];
+  mcpInstructionTokens: number;
   toolDeclarationTokens: number;
   toolCount: number;
   conversationTokens: number;
@@ -401,6 +415,7 @@ export interface ContextWindowData {
   compressionThreshold: number;
   estimatedTurnsRemaining: number | null;
   contextManagementEnabled: boolean;
+  jitContextEnabled: boolean;
 }
 
 export type HistoryItemContextWindow = HistoryItemBase & {

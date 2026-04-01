@@ -196,6 +196,93 @@ describe('MemoryContextManager', () => {
     });
   });
 
+  describe('getCategorizedLoadedPaths', () => {
+    it('should return paths grouped by category after refresh', async () => {
+      const globalPaths = ['/home/user/.gemini/GEMINI.md'];
+      const envPaths = ['/app/GEMINI.md'];
+      const extPaths = ['/ext/context.md'];
+
+      vi.mocked(memoryDiscovery.getGlobalMemoryPaths).mockResolvedValue(
+        globalPaths,
+      );
+      vi.mocked(memoryDiscovery.getEnvironmentMemoryPaths).mockResolvedValue(
+        envPaths,
+      );
+      vi.mocked(memoryDiscovery.getExtensionMemoryPaths).mockReturnValue(
+        extPaths,
+      );
+      vi.mocked(memoryDiscovery.getUserProjectMemoryPaths).mockResolvedValue(
+        [],
+      );
+
+      vi.mocked(memoryDiscovery.readGeminiMdFiles).mockResolvedValue([
+        { filePath: globalPaths[0], content: 'Global Content' },
+        { filePath: envPaths[0], content: 'Env Content' },
+        { filePath: extPaths[0], content: 'Ext Content' },
+      ]);
+
+      await contextManager.refresh();
+
+      const categorized = contextManager.getCategorizedLoadedPaths();
+      expect(categorized.global).toEqual(globalPaths);
+      expect(categorized.project).toEqual(envPaths);
+      expect(categorized.extension).toEqual(extPaths);
+      expect(categorized.userProject).toEqual([]);
+    });
+
+    it('should exclude files that failed to load', async () => {
+      const globalPaths = ['/home/user/.gemini/GEMINI.md'];
+      const envPaths = ['/app/GEMINI.md'];
+
+      vi.mocked(memoryDiscovery.getGlobalMemoryPaths).mockResolvedValue(
+        globalPaths,
+      );
+      vi.mocked(memoryDiscovery.getEnvironmentMemoryPaths).mockResolvedValue(
+        envPaths,
+      );
+
+      vi.mocked(memoryDiscovery.readGeminiMdFiles).mockResolvedValue([
+        { filePath: globalPaths[0], content: 'Global Content' },
+        { filePath: envPaths[0], content: null },
+      ]);
+
+      await contextManager.refresh();
+
+      const categorized = contextManager.getCategorizedLoadedPaths();
+      expect(categorized.global).toEqual(globalPaths);
+      expect(categorized.project).toEqual([]);
+    });
+
+    it('should reset categories on refresh', async () => {
+      vi.mocked(memoryDiscovery.getGlobalMemoryPaths).mockResolvedValue([
+        '/first.md',
+      ]);
+      vi.mocked(memoryDiscovery.getEnvironmentMemoryPaths).mockResolvedValue(
+        [],
+      );
+      vi.mocked(memoryDiscovery.readGeminiMdFiles).mockResolvedValue([
+        { filePath: '/first.md', content: 'content' },
+      ]);
+
+      await contextManager.refresh();
+      expect(contextManager.getCategorizedLoadedPaths().global).toEqual([
+        '/first.md',
+      ]);
+
+      vi.mocked(memoryDiscovery.getGlobalMemoryPaths).mockResolvedValue([
+        '/second.md',
+      ]);
+      vi.mocked(memoryDiscovery.readGeminiMdFiles).mockResolvedValue([
+        { filePath: '/second.md', content: 'content' },
+      ]);
+
+      await contextManager.refresh();
+      expect(contextManager.getCategorizedLoadedPaths().global).toEqual([
+        '/second.md',
+      ]);
+    });
+  });
+
   describe('discoverContext', () => {
     it('should discover and load new context', async () => {
       const mockResult: memoryDiscovery.MemoryLoadResult = {

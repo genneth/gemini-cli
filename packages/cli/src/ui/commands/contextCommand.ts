@@ -8,6 +8,8 @@ import {
   MessageType,
   type HistoryItemContextWindow,
   type MemoryBreakdown,
+  type MemoryFileInfo,
+  type McpInstructionInfo,
 } from '../types.js';
 import {
   type CommandContext,
@@ -67,11 +69,12 @@ async function contextAction(context: CommandContext): Promise<void> {
   // instruction), not from disk — files may have been edited since load.
   const loadedMemory = flattenMemory(config.getUserMemory());
   const memoryTokens = estimateStringTokens(loadedMemory);
-  const memoryFileCount = config.getGeminiMdFileCount();
 
-  // Memory breakdown by category (if ContextManager is available)
+  // Memory breakdown by category and per-file info
   let memoryBreakdown: MemoryBreakdown | null = null;
-  const ctxMgr = config.getContextManager();
+  let memoryFiles: MemoryFileInfo[] = [];
+  let memoryFileCount = 0;
+  const ctxMgr = config.getMemoryContextManager();
   if (ctxMgr) {
     memoryBreakdown = {
       global: estimateStringTokens(ctxMgr.getGlobalMemory()),
@@ -79,6 +82,35 @@ async function contextAction(context: CommandContext): Promise<void> {
       extension: estimateStringTokens(ctxMgr.getExtensionMemory()),
       userProject: estimateStringTokens(ctxMgr.getUserProjectMemory()),
     };
+
+    // Per-file breakdown from categorized paths
+    const categorized = ctxMgr.getCategorizedLoadedPaths();
+    const buildFileInfos = (
+      paths: string[],
+      category: MemoryFileInfo['category'],
+    ): MemoryFileInfo[] => paths.map((path) => ({ path, tokens: 0, category }));
+
+    memoryFiles = [
+      ...buildFileInfos(categorized.global, 'global'),
+      ...buildFileInfos(categorized.extension, 'extension'),
+      ...buildFileInfos(categorized.project, 'project'),
+      ...buildFileInfos(categorized.userProject, 'userProject'),
+    ];
+    memoryFileCount = memoryFiles.length;
+  } else {
+    memoryFileCount = config.getGeminiMdFileCount();
+  }
+
+  // MCP instructions breakdown (separate from project memory files)
+  const mcpInstructions: McpInstructionInfo[] = [];
+  let mcpInstructionTokens = 0;
+  const mcpMgr = config.getMcpClientManager();
+  if (mcpMgr) {
+    for (const entry of mcpMgr.getMcpInstructionsByServer()) {
+      const tokens = estimateStringTokens(entry.instructions);
+      mcpInstructions.push({ serverName: entry.serverName, tokens });
+      mcpInstructionTokens += tokens;
+    }
   }
 
   // Core system prompt = total system instruction minus loaded memory
@@ -108,6 +140,7 @@ async function contextAction(context: CommandContext): Promise<void> {
 
   // Context management state
   const contextManagementEnabled = config.isAutoDistillationEnabled();
+  const jitContextEnabled = config.isJitContextEnabled();
 
   // Estimated turns remaining before compression
   const tokensUsed =
@@ -137,6 +170,9 @@ async function contextAction(context: CommandContext): Promise<void> {
       memoryTokens,
       memoryFileCount,
       memoryBreakdown,
+      memoryFiles,
+      mcpInstructions,
+      mcpInstructionTokens,
       toolDeclarationTokens,
       toolCount,
       conversationTokens,
@@ -144,6 +180,7 @@ async function contextAction(context: CommandContext): Promise<void> {
       compressionThreshold,
       estimatedTurnsRemaining,
       contextManagementEnabled,
+      jitContextEnabled,
     },
   };
   context.ui.addItem(item);

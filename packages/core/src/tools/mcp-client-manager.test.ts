@@ -428,6 +428,43 @@ describe('McpClientManager', () => {
     });
   });
 
+  describe('getMcpInstructionsByServer', () => {
+    it('should return per-server instruction entries', async () => {
+      vi.mocked(McpClient).mockImplementation(
+        (name, config) =>
+          ({
+            connect: vi.fn(),
+            discoverInto: vi.fn(),
+            disconnect: vi.fn(),
+            getServerConfig: vi.fn().mockReturnValue(config),
+            getServerName: vi.fn().mockReturnValue(name),
+            getInstructions: vi
+              .fn()
+              .mockReturnValue(
+                name === 'server-with-instructions'
+                  ? `Instructions for ${name}`
+                  : '',
+              ),
+          }) as unknown as McpClient,
+      );
+      const manager = new McpClientManager('0.0.1', mockConfig);
+
+      mockConfig.getMcpServers.mockReturnValue({
+        'server-with-instructions': { command: 'node' },
+        'server-without-instructions': { command: 'node' },
+      });
+      await manager.startConfiguredMcpServers();
+
+      const entries = manager.getMcpInstructionsByServer();
+
+      expect(entries).toHaveLength(1);
+      expect(entries[0].serverName).toBe('server-with-instructions');
+      expect(entries[0].instructions).toBe(
+        'Instructions for server-with-instructions',
+      );
+    });
+  });
+
   describe('Promise rejection handling', () => {
     it('should handle errors thrown during client initialization', async () => {
       vi.mocked(McpClient).mockImplementation(() => {
