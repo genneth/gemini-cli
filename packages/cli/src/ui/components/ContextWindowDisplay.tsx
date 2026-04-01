@@ -6,7 +6,6 @@
 
 import type React from 'react';
 import { Box, Text, useStdout } from 'ink';
-import * as path from 'node:path';
 import { theme } from '../semantic-colors.js';
 import type { ContextWindowData, MemoryFileInfo } from '../types.js';
 
@@ -29,18 +28,19 @@ function fmtNum(n: number): string {
 function shortenPath(filePath: string): string {
   const home = process.env['HOME'] || process.env['USERPROFILE'] || '';
   const cwd = process.cwd();
+  // Normalize to forward slashes for consistent comparison
+  const norm = filePath.replace(/\\/g, '/');
 
-  // Prefer CWD-relative for project files
-  if (cwd && filePath.startsWith(cwd)) {
-    const rel = path.relative(cwd, filePath);
-    return './' + rel.replace(/\\/g, '/');
+  // Case-insensitive prefix matching (Windows returns lowercase paths)
+  const cwdNorm = cwd.replace(/\\/g, '/');
+  if (cwdNorm && norm.toLowerCase().startsWith(cwdNorm.toLowerCase())) {
+    return './' + norm.slice(cwdNorm.length).replace(/^\//, '');
   }
-  // Fall back to HOME-relative
-  if (home && filePath.startsWith(home)) {
-    const rel = path.relative(home, filePath);
-    return '~/' + rel.replace(/\\/g, '/');
+  const homeNorm = home.replace(/\\/g, '/');
+  if (homeNorm && norm.toLowerCase().startsWith(homeNorm.toLowerCase())) {
+    return '~/' + norm.slice(homeNorm.length).replace(/^\//, '');
   }
-  return filePath.replace(/\\/g, '/');
+  return norm;
 }
 
 const CATEGORY_LABELS: Record<MemoryFileInfo['category'], string> = {
@@ -89,18 +89,6 @@ const StatRow: React.FC<{
   <Box>
     <Box width={LABEL_WIDTH}>
       <Text color={color ?? theme.text.link}>{label}</Text>
-    </Box>
-    {children}
-  </Box>
-);
-
-const SubRow: React.FC<{
-  label: string;
-  children: React.ReactNode;
-}> = ({ label, children }) => (
-  <Box paddingLeft={2}>
-    <Box width={LABEL_WIDTH - 2}>
-      <Text color={theme.text.secondary}>{label}</Text>
     </Box>
     {children}
   </Box>
@@ -324,19 +312,29 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
         {/* Per-file memory breakdown */}
         {data.memoryFiles.length > 0 &&
           data.memoryFiles.map((f, i) => (
-            <SubRow key={i} label={shortenPath(f.path)}>
-              <Text color={theme.text.secondary}>
+            <Box key={i} paddingLeft={4}>
+              <Text color={theme.text.secondary} wrap="truncate-end">
+                {shortenPath(f.path)}
+              </Text>
+              <Text color={theme.text.secondary} dimColor>
+                {'  '}
                 {CATEGORY_LABELS[f.category]}
               </Text>
-            </SubRow>
+            </Box>
           ))}
 
         {/* MCP instructions (included in project memory tokens) */}
         {data.mcpInstructions.length > 0 &&
           data.mcpInstructions.map((mcp, i) => (
-            <SubRow key={`mcp-${i}`} label={`MCP: ${mcp.serverName}`}>
-              <Text color={theme.text.secondary}>{fmtNum(mcp.tokens)}</Text>
-            </SubRow>
+            <Box key={`mcp-${i}`} paddingLeft={4}>
+              <Text color={theme.text.secondary} wrap="truncate-end">
+                MCP: {mcp.serverName}
+              </Text>
+              <Text color={theme.text.secondary}>
+                {'  '}
+                {fmtNum(mcp.tokens)} tokens
+              </Text>
+            </Box>
           ))}
 
         <StatRow label="Tool schemas" color={categoryColors.tools}>

@@ -98,13 +98,23 @@ async function contextAction(context: CommandContext): Promise<void> {
     ];
     memoryFileCount = memoryFiles.length;
   } else {
-    // No ContextManager (JIT off) — use flat path list without categories
+    // No ContextManager (JIT off) — use flat path list, infer category from path
+    const home = process.env['HOME'] || process.env['USERPROFILE'] || '';
+    const homeGemini = home ? home.replace(/\\/g, '/') + '/.gemini' : '';
     const paths = config.getGeminiMdFilePaths() || [];
-    memoryFiles = paths.map((p) => ({
-      path: p,
-      tokens: 0,
-      category: 'project',
-    }));
+    memoryFiles = paths.map((p) => {
+      const norm = p.replace(/\\/g, '/').toLowerCase();
+      let category: MemoryFileInfo['category'] = 'project';
+      if (
+        homeGemini &&
+        norm.startsWith(homeGemini.toLowerCase() + '/extensions/')
+      ) {
+        category = 'extension';
+      } else if (homeGemini && norm.startsWith(homeGemini.toLowerCase())) {
+        category = 'global';
+      }
+      return { path: p, tokens: 0, category };
+    });
     memoryFileCount = paths.length;
   }
 
