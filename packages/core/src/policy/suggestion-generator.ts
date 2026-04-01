@@ -201,19 +201,27 @@ export async function suggestPolicyScope(
         debugLogger.debug(
           `[PolicySuggestion] Unsafe argsPattern rejected: ${parsed.argsPattern}`,
         );
-        const safeSuggestion = {
-          description: parsed.description,
-          commandPrefix: parsed.commandPrefix,
-          toolName: parsed.toolName,
-        };
+        // Strip the unsafe pattern; keep other actionable fields
+        parsed.argsPattern = undefined;
+      }
+
+      // A suggestion without any actionable scope field is useless — the
+      // system would silently fall back to the heuristic, confusing the user.
+      const hasActionableScope =
+        parsed.commandPrefix || parsed.argsPattern || parsed.toolName;
+      if (!hasActionableScope) {
+        debugLogger.debug(
+          '[PolicySuggestion] Discarded: no actionable scope field (commandPrefix, argsPattern, or toolName)',
+        );
         logPolicySuggestion(
           config,
           new PolicySuggestionEvent(
             toolContext,
-            JSON.stringify(safeSuggestion),
+            JSON.stringify(parsed),
+            'no actionable scope field',
           ),
         );
-        return safeSuggestion;
+        return null;
       }
 
       debugLogger.debug(`[PolicySuggestion] Parsed: ${JSON.stringify(parsed)}`);

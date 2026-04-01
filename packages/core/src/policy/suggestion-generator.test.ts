@@ -98,6 +98,7 @@ describe('suggestPolicyScope', () => {
               {
                 text: JSON.stringify({
                   description: 'Allow edits to src/components/',
+                  argsPattern: '^src/components/',
                 }),
               },
             ],
@@ -114,6 +115,7 @@ describe('suggestPolicyScope', () => {
 
     expect(result).toEqual({
       description: 'Allow edits to src/components/',
+      argsPattern: '^src/components/',
     });
   });
 
@@ -268,6 +270,33 @@ describe('suggestPolicyScope', () => {
     });
     // argsPattern should be stripped
     expect(result?.argsPattern).toBeUndefined();
+  });
+
+  it('should return null when response has only description and no actionable fields', async () => {
+    mockGenerateContent.mockResolvedValue({
+      candidates: [
+        {
+          content: {
+            parts: [
+              {
+                text: JSON.stringify({
+                  description: 'Allow this command',
+                }),
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    const result = await suggestPolicyScope(
+      execDetails,
+      'run_shell_command',
+      mockConfig,
+    );
+
+    expect(result).toBeNull();
+    expect(logPolicySuggestion).toHaveBeenCalled();
   });
 
   it('should keep safe argsPattern', async () => {
