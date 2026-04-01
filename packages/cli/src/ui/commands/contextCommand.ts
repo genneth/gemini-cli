@@ -98,7 +98,14 @@ async function contextAction(context: CommandContext): Promise<void> {
     ];
     memoryFileCount = memoryFiles.length;
   } else {
-    memoryFileCount = config.getGeminiMdFileCount();
+    // No ContextManager (JIT off) — use flat path list without categories
+    const paths = config.getGeminiMdFilePaths() || [];
+    memoryFiles = paths.map((p) => ({
+      path: p,
+      tokens: 0,
+      category: 'project',
+    }));
+    memoryFileCount = paths.length;
   }
 
   // MCP instructions breakdown (separate from project memory files)

@@ -331,55 +331,13 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
             </SubRow>
           ))}
 
-        {/* Category totals when files aren't available but breakdown is */}
-        {data.memoryFiles.length === 0 && data.memoryBreakdown && (
-          <>
-            {data.memoryBreakdown.global > 0 && (
-              <SubRow label="global">
-                <Text color={theme.text.secondary}>
-                  {fmtNum(data.memoryBreakdown.global)}
-                </Text>
-              </SubRow>
-            )}
-            {data.memoryBreakdown.project > 0 && (
-              <SubRow label="project">
-                <Text color={theme.text.secondary}>
-                  {fmtNum(data.memoryBreakdown.project)}
-                </Text>
-              </SubRow>
-            )}
-            {data.memoryBreakdown.extension > 0 && (
-              <SubRow label="extensions">
-                <Text color={theme.text.secondary}>
-                  {fmtNum(data.memoryBreakdown.extension)}
-                </Text>
-              </SubRow>
-            )}
-            {data.memoryBreakdown.userProject > 0 && (
-              <SubRow label="user project">
-                <Text color={theme.text.secondary}>
-                  {fmtNum(data.memoryBreakdown.userProject)}
-                </Text>
-              </SubRow>
-            )}
-          </>
-        )}
-
-        {/* MCP instructions */}
-        {data.mcpInstructions.length > 0 && (
-          <>
-            <SubRow label="MCP instructions">
-              <Text color={theme.text.secondary}>
-                {fmtNum(data.mcpInstructionTokens)} tokens
-              </Text>
+        {/* MCP instructions (included in project memory tokens) */}
+        {data.mcpInstructions.length > 0 &&
+          data.mcpInstructions.map((mcp, i) => (
+            <SubRow key={`mcp-${i}`} label={`MCP: ${mcp.serverName}`}>
+              <Text color={theme.text.secondary}>{fmtNum(mcp.tokens)}</Text>
             </SubRow>
-            {data.mcpInstructions.map((mcp, i) => (
-              <SubRow key={i} label={`  ${mcp.serverName}`}>
-                <Text color={theme.text.secondary}>{fmtNum(mcp.tokens)}</Text>
-              </SubRow>
-            ))}
-          </>
-        )}
+          ))}
 
         <StatRow label="Tool schemas" color={categoryColors.tools}>
           <Text>{fmtNum(data.toolDeclarationTokens)}</Text>
