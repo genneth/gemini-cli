@@ -313,7 +313,7 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
         {data.memoryFiles.length > 0 &&
           data.memoryFiles.map((f, i) => (
             <Box key={i} paddingLeft={4}>
-              <Box width={10} flexShrink={0}>
+              <Box width={11} flexShrink={0}>
                 <Text dimColor>{CATEGORY_LABELS[f.category]}</Text>
               </Box>
               <Text color={theme.text.secondary} wrap="truncate-end">
@@ -326,7 +326,7 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
         {data.mcpInstructions.length > 0 &&
           data.mcpInstructions.map((mcp, i) => (
             <Box key={`mcp-${i}`} paddingLeft={4}>
-              <Box width={10} flexShrink={0}>
+              <Box width={11} flexShrink={0}>
                 <Text dimColor>mcp</Text>
               </Box>
               <Text color={theme.text.secondary} wrap="truncate-end">
