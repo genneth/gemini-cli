@@ -4,7 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { MessageType, type HistoryItemContextWindow } from '../types.js';
+import {
+  MessageType,
+  type HistoryItemContextWindow,
+  type MemoryBreakdown,
+} from '../types.js';
 import {
   type CommandContext,
   type SlashCommand,
@@ -65,6 +69,18 @@ async function contextAction(context: CommandContext): Promise<void> {
   const memoryTokens = estimateStringTokens(loadedMemory);
   const memoryFileCount = config.getGeminiMdFileCount();
 
+  // Memory breakdown by category (if ContextManager is available)
+  let memoryBreakdown: MemoryBreakdown | null = null;
+  const ctxMgr = config.getContextManager();
+  if (ctxMgr) {
+    memoryBreakdown = {
+      global: estimateStringTokens(ctxMgr.getGlobalMemory()),
+      project: estimateStringTokens(ctxMgr.getEnvironmentMemory()),
+      extension: estimateStringTokens(ctxMgr.getExtensionMemory()),
+      userProject: estimateStringTokens(ctxMgr.getUserProjectMemory()),
+    };
+  }
+
   // Core system prompt = total system instruction minus loaded memory
   const systemPromptTokens = Math.max(0, totalSystemTokens - memoryTokens);
 
@@ -83,8 +99,15 @@ async function contextAction(context: CommandContext): Promise<void> {
     conversationTokens += estimateTurnTokens(turn);
   }
 
+  // Actual token count from last API response (if available)
+  const lastPromptTokens = chat.getLastPromptTokenCount();
+  const actualPromptTokens = lastPromptTokens > 0 ? lastPromptTokens : null;
+
   // Compression threshold
   const compressionThreshold = (await config.getCompressionThreshold()) ?? 0.5;
+
+  // Context management state
+  const contextManagementEnabled = config.isAutoDistillationEnabled();
 
   // Estimated turns remaining before compression
   const tokensUsed =
@@ -109,15 +132,18 @@ async function contextAction(context: CommandContext): Promise<void> {
       model,
       tokenLimit: limit,
       tokensUsed,
+      actualPromptTokens,
       systemPromptTokens,
       memoryTokens,
       memoryFileCount,
+      memoryBreakdown,
       toolDeclarationTokens,
       toolCount,
       conversationTokens,
       turnCount,
       compressionThreshold,
       estimatedTurnsRemaining,
+      contextManagementEnabled,
     },
   };
   context.ui.addItem(item);

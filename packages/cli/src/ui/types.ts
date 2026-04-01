@@ -378,19 +378,29 @@ export type HistoryItemMcpStatus = HistoryItemBase & {
   showSchema: boolean;
 };
 
+export interface MemoryBreakdown {
+  global: number;
+  project: number;
+  extension: number;
+  userProject: number;
+}
+
 export interface ContextWindowData {
   model: string;
   tokenLimit: number;
   tokensUsed: number;
+  actualPromptTokens: number | null;
   systemPromptTokens: number;
   memoryTokens: number;
   memoryFileCount: number;
+  memoryBreakdown: MemoryBreakdown | null;
   toolDeclarationTokens: number;
   toolCount: number;
   conversationTokens: number;
   turnCount: number;
   compressionThreshold: number;
   estimatedTurnsRemaining: number | null;
+  contextManagementEnabled: boolean;
 }
 
 export type HistoryItemContextWindow = HistoryItemBase & {

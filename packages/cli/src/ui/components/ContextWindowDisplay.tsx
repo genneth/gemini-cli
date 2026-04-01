@@ -194,6 +194,26 @@ const CategoryRow: React.FC<{
   </Box>
 );
 
+/**
+ * A sub-row for memory breakdown detail (indented, dimmer).
+ */
+const MemorySubRow: React.FC<{
+  label: string;
+  tokens: number;
+}> = ({ label, tokens }) => {
+  if (tokens <= 0) return null;
+  return (
+    <Box flexDirection="row">
+      <Box width={20}>
+        <Text color={theme.text.secondary}> {label}</Text>
+      </Box>
+      <Box width={12} justifyContent="flex-end">
+        <Text color={theme.text.secondary}>{fmtNum(tokens)}</Text>
+      </Box>
+    </Box>
+  );
+};
+
 export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
   data,
 }) => {
@@ -204,6 +224,20 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
     data.estimatedTurnsRemaining !== null
       ? ` \u00B7 \u2248 ${fmtNum(data.estimatedTurnsRemaining)} turns at current rate`
       : '';
+
+  // Show actual vs estimated when API-reported tokens are available
+  const actualNote =
+    data.actualPromptTokens !== null
+      ? ` (API reported: ${fmtCompact(data.actualPromptTokens)})`
+      : '';
+
+  // Context management features
+  const features: string[] = [];
+  if (data.contextManagementEnabled) {
+    features.push('auto-distillation');
+  }
+  const featuresNote =
+    features.length > 0 ? features.join(', ') : 'compression only';
 
   return (
     <Box
@@ -230,6 +264,7 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
         </Box>
         <Text color={theme.text.secondary}>
           {fmtCompact(data.tokensUsed)} / {fmtCompact(data.tokenLimit)} tokens
+          {actualNote}
         </Text>
       </Box>
 
@@ -290,6 +325,26 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
           color={categoryColors.memory}
           detail={`${data.memoryFileCount} files`}
         />
+        {data.memoryBreakdown && (
+          <>
+            <MemorySubRow
+              label="\u2514 global"
+              tokens={data.memoryBreakdown.global}
+            />
+            <MemorySubRow
+              label="\u2514 project"
+              tokens={data.memoryBreakdown.project}
+            />
+            <MemorySubRow
+              label="\u2514 extensions"
+              tokens={data.memoryBreakdown.extension}
+            />
+            <MemorySubRow
+              label="\u2514 user project"
+              tokens={data.memoryBreakdown.userProject}
+            />
+          </>
+        )}
         <CategoryRow
           label="Conversation"
           tokens={data.conversationTokens}
@@ -301,6 +356,14 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
           color={categoryColors.conversation}
           detail={`${data.turnCount} turns`}
         />
+      </Box>
+
+      {/* Context management status */}
+      <Box height={1} />
+      <Box>
+        <Text color={theme.text.secondary}>
+          Context strategy: {featuresNote}
+        </Text>
       </Box>
     </Box>
   );
