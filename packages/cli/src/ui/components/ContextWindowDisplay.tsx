@@ -313,12 +313,11 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
         {data.memoryFiles.length > 0 &&
           data.memoryFiles.map((f, i) => (
             <Box key={i} paddingLeft={4}>
+              <Box width={10} flexShrink={0}>
+                <Text dimColor>{CATEGORY_LABELS[f.category]}</Text>
+              </Box>
               <Text color={theme.text.secondary} wrap="truncate-end">
                 {shortenPath(f.path)}
-              </Text>
-              <Text color={theme.text.secondary} dimColor>
-                {'  '}
-                {CATEGORY_LABELS[f.category]}
               </Text>
             </Box>
           ))}
@@ -327,10 +326,11 @@ export const ContextWindowDisplay: React.FC<{ data: ContextWindowData }> = ({
         {data.mcpInstructions.length > 0 &&
           data.mcpInstructions.map((mcp, i) => (
             <Box key={`mcp-${i}`} paddingLeft={4}>
+              <Box width={10} flexShrink={0}>
+                <Text dimColor>mcp</Text>
+              </Box>
               <Text color={theme.text.secondary} wrap="truncate-end">
-                MCP: {mcp.serverName}
-              </Text>
-              <Text color={theme.text.secondary}>
+                {mcp.serverName}
                 {'  '}
                 {fmtNum(mcp.tokens)} tokens
               </Text>
