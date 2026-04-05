@@ -221,9 +221,9 @@ describe('MemoryContextManager', () => {
         { filePath: extPaths[0], content: 'Ext Content' },
       ]);
 
-      await contextManager.refresh();
+      await memoryContextManager.refresh();
 
-      const categorized = contextManager.getCategorizedLoadedPaths();
+      const categorized = memoryContextManager.getCategorizedLoadedPaths();
       expect(categorized.global).toEqual(globalPaths);
       expect(categorized.project).toEqual(envPaths);
       expect(categorized.extension).toEqual(extPaths);
@@ -246,9 +246,9 @@ describe('MemoryContextManager', () => {
         { filePath: envPaths[0], content: null },
       ]);
 
-      await contextManager.refresh();
+      await memoryContextManager.refresh();
 
-      const categorized = contextManager.getCategorizedLoadedPaths();
+      const categorized = memoryContextManager.getCategorizedLoadedPaths();
       expect(categorized.global).toEqual(globalPaths);
       expect(categorized.project).toEqual([]);
     });
@@ -264,8 +264,8 @@ describe('MemoryContextManager', () => {
         { filePath: '/first.md', content: 'content' },
       ]);
 
-      await contextManager.refresh();
-      expect(contextManager.getCategorizedLoadedPaths().global).toEqual([
+      await memoryContextManager.refresh();
+      expect(memoryContextManager.getCategorizedLoadedPaths().global).toEqual([
         '/first.md',
       ]);
 
@@ -276,8 +276,8 @@ describe('MemoryContextManager', () => {
         { filePath: '/second.md', content: 'content' },
       ]);
 
-      await contextManager.refresh();
-      expect(contextManager.getCategorizedLoadedPaths().global).toEqual([
+      await memoryContextManager.refresh();
+      expect(memoryContextManager.getCategorizedLoadedPaths().global).toEqual([
         '/second.md',
       ]);
     });

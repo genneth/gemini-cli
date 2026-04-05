@@ -156,7 +156,7 @@ async function contextAction(context: CommandContext): Promise<void> {
   const compressionThreshold = (await config.getCompressionThreshold()) ?? 0.5;
 
   // Context management state
-  const contextManagementEnabled = config.isAutoDistillationEnabled();
+  const contextManagementEnabled = config.isContextManagementEnabled();
   const jitContextEnabled = config.isJitContextEnabled();
 
   // Estimated turns remaining before compression
