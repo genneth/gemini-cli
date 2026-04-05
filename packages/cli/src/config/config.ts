@@ -1121,6 +1121,7 @@ export async function loadCliConfig(
       };
     },
     enableConseca: settings.security?.enableConseca,
+    enableSmartPolicyScoping: settings.security?.enableSmartPolicyScoping,
   });
 }
 

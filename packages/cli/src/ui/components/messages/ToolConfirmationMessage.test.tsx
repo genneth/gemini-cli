@@ -907,4 +907,147 @@ describe('ToolConfirmationMessage', () => {
       unmount();
     });
   });
+
+  describe('smart policy scoping (visual regression)', () => {
+    // Smart scoping subscribes to MessageBus on the confirmation correlationId
+    // and substitutes the LLM-suggested scope into the bracketed text of the
+    // question. These tests pin the rendered output so a regression — losing
+    // the description, wrong color on the bracket, missing fallback — surfaces
+    // as an SVG diff.
+
+    const smartScopingConfig = (messageBus: {
+      on: ReturnType<typeof vi.fn>;
+      off: ReturnType<typeof vi.fn>;
+    }): Config =>
+      ({
+        isTrustedFolder: () => true,
+        getIdeMode: () => false,
+        getDisableAlwaysAllow: () => false,
+        getApprovalMode: () => 'default',
+        enableSmartPolicyScoping: true,
+        getMessageBus: () => messageBus,
+      }) as unknown as Config;
+
+    const execDetails: SerializableConfirmationDetails = {
+      type: 'exec',
+      title: 'Confirm Execution',
+      command: 'git diff',
+      rootCommand: 'git',
+      rootCommands: ['git'],
+    };
+
+    it('renders LLM-suggested scope (array commandPrefix + description)', async () => {
+      let handler: ((msg: unknown) => void) | undefined;
+      const messageBus = {
+        on: vi.fn((_type: unknown, h: (msg: unknown) => void) => {
+          handler = h;
+        }),
+        off: vi.fn(),
+      };
+
+      const renderResult = await renderWithProviders(
+        <ToolConfirmationMessage
+          callId="test-call-id"
+          correlationId="corr-1"
+          confirmationDetails={execDetails}
+          config={smartScopingConfig(messageBus)}
+          getPreferredEditor={vi.fn()}
+          availableTerminalHeight={30}
+          terminalWidth={80}
+          toolName="shell"
+        />,
+      );
+      await renderResult.waitUntilReady();
+
+      // Drive the policy suggestion through the bus as it would happen at
+      // runtime once the Flash Lite call returns.
+      await act(async () => {
+        handler?.({
+          type: 'POLICY_SUGGESTION',
+          correlationId: 'corr-1',
+          suggestion: {
+            description: 'read-only git',
+            commandPrefix: ['git diff', 'git log', 'git status'],
+          },
+        });
+      });
+      await renderResult.waitUntilReady();
+
+      const output = renderResult.lastFrame();
+      expect(output).toContain('[git diff, git log, git status]');
+      expect(output).toContain('(read-only git)');
+      await expect(renderResult).toMatchSvgSnapshot();
+      renderResult.unmount();
+    });
+
+    it('renders LLM-suggested scope (single commandPrefix + description)', async () => {
+      let handler: ((msg: unknown) => void) | undefined;
+      const messageBus = {
+        on: vi.fn((_type: unknown, h: (msg: unknown) => void) => {
+          handler = h;
+        }),
+        off: vi.fn(),
+      };
+
+      const renderResult = await renderWithProviders(
+        <ToolConfirmationMessage
+          callId="test-call-id"
+          correlationId="corr-2"
+          confirmationDetails={execDetails}
+          config={smartScopingConfig(messageBus)}
+          getPreferredEditor={vi.fn()}
+          availableTerminalHeight={30}
+          terminalWidth={80}
+          toolName="shell"
+        />,
+      );
+      await renderResult.waitUntilReady();
+
+      await act(async () => {
+        handler?.({
+          type: 'POLICY_SUGGESTION',
+          correlationId: 'corr-2',
+          suggestion: {
+            description: 'list files',
+            commandPrefix: 'ls -la',
+          },
+        });
+      });
+      await renderResult.waitUntilReady();
+
+      const output = renderResult.lastFrame();
+      expect(output).toContain('[ls -la]');
+      expect(output).toContain('(list files)');
+      await expect(renderResult).toMatchSvgSnapshot();
+      renderResult.unmount();
+    });
+
+    it('falls back to the toolName bracket when no suggestion arrives', async () => {
+      const messageBus = {
+        on: vi.fn(),
+        off: vi.fn(),
+      };
+
+      const renderResult = await renderWithProviders(
+        <ToolConfirmationMessage
+          callId="test-call-id"
+          correlationId="corr-3"
+          confirmationDetails={execDetails}
+          config={smartScopingConfig(messageBus)}
+          getPreferredEditor={vi.fn()}
+          availableTerminalHeight={30}
+          terminalWidth={80}
+          toolName="shell"
+        />,
+      );
+      await renderResult.waitUntilReady();
+
+      const output = renderResult.lastFrame();
+      expect(output).toContain('[Shell]');
+      // No parenthesised description before the suggestion arrives.
+      expect(output).not.toMatch(/\[Shell\] \(/);
+      await expect(renderResult).toMatchSvgSnapshot();
+      renderResult.unmount();
+    });
+  });
 });

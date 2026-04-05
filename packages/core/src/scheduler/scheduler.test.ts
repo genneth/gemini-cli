@@ -919,6 +919,7 @@ describe('Scheduler (Orchestrator)', () => {
         mockConfig,
         expect.anything(),
         expect.anything(),
+        undefined, // policySuggestion
       );
 
       expect(mockExecutor.execute).toHaveBeenCalled();

@@ -167,6 +167,39 @@ Allow execution of MCP tool "testtool" from server "testserver"?
 "
 `;
 
+exports[`ToolConfirmationMessage > smart policy scoping (visual regression) > falls back to the toolName bracket when no suggestion arrives 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────╮
+│ git diff                                                                     │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Allow execution of [Shell]?
+
+● 1. Allow once               
+  2. Allow for this session
+  3. No, suggest changes (esc)"
+`;
+
+exports[`ToolConfirmationMessage > smart policy scoping (visual regression) > renders LLM-suggested scope (array commandPrefix + description) 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────╮
+│ git diff                                                                     │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Allow execution of [git diff, git log, git status] (read-only git)?
+
+● 1. Allow once               
+  2. Allow for this session
+  3. No, suggest changes (esc)"
+`;
+
+exports[`ToolConfirmationMessage > smart policy scoping (visual regression) > renders LLM-suggested scope (single commandPrefix + description) 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────╮
+│ git diff                                                                     │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Allow execution of [ls -la] (list files)?
+
+● 1. Allow once               
+  2. Allow for this session
+  3. No, suggest changes (esc)"
+`;
+
 exports[`ToolConfirmationMessage > with folder trust > 'for edit confirmations' > should NOT show "allow always" when folder is untrusted 1`] = `
 "╭──────────────────────────────────────────────────────────────────────────────╮
 │                                                                              │
