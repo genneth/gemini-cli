@@ -178,7 +178,10 @@ export async function resolveConfirmation(
     // policySuggestion will still be null and updatePolicy() falls back to
     // the heuristic. The UI shows "Suggesting scope..." to hint that
     // waiting a moment may yield a better-scoped rule.
-    if (deps.config.enableSmartPolicyScoping) {
+    if (
+      deps.config.enableSmartPolicyScoping &&
+      serializableDetails.type !== 'edit'
+    ) {
       void suggestPolicyScope(
         serializableDetails,
         toolCall.tool.name,
