@@ -378,6 +378,7 @@ describe('policy.ts', () => {
     it('should use policySuggestion.commandPrefix over heuristic for shell commands', async () => {
       const mockConfig = {
         setApprovalMode: vi.fn(),
+        getApprovalMode: vi.fn().mockReturnValue(ApprovalMode.DEFAULT),
       } as unknown as Mocked<Config>;
 
       (mockConfig as unknown as { config: Config }).config =
@@ -422,6 +423,7 @@ describe('policy.ts', () => {
     it('should use policySuggestion.argsPattern when commandPrefix is absent', async () => {
       const mockConfig = {
         setApprovalMode: vi.fn(),
+        getApprovalMode: vi.fn().mockReturnValue(ApprovalMode.DEFAULT),
       } as unknown as Mocked<Config>;
 
       (mockConfig as unknown as { config: Config }).config =
@@ -466,6 +468,7 @@ describe('policy.ts', () => {
     it('should use policySuggestion.toolName for MCP tool scoping', async () => {
       const mockConfig = {
         setApprovalMode: vi.fn(),
+        getApprovalMode: vi.fn().mockReturnValue(ApprovalMode.DEFAULT),
       } as unknown as Mocked<Config>;
 
       (mockConfig as unknown as { config: Config }).config =
@@ -510,6 +513,7 @@ describe('policy.ts', () => {
     it('should ignore policySuggestion.toolName for MCP server-wide scope', async () => {
       const mockConfig = {
         setApprovalMode: vi.fn(),
+        getApprovalMode: vi.fn().mockReturnValue(ApprovalMode.DEFAULT),
       } as unknown as Mocked<Config>;
 
       (mockConfig as unknown as { config: Config }).config =
