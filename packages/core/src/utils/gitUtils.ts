@@ -6,6 +6,7 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { execFile } from 'node:child_process';
 
 /**
  * Checks if a directory is within a git repository
@@ -70,4 +71,55 @@ export function findGitRoot(directory: string): string | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Filters out paths that are ignored by git.
+ * Proper implementation that handles the throw from execFileAsync correctly.
+ */
+export async function getGitIgnoredPaths(
+  paths: string[],
+  cwd: string,
+): Promise<Set<string>> {
+  if (paths.length === 0) return new Set();
+  if (!isGitRepository(cwd)) return new Set();
+
+  let stdout = '';
+  try {
+    // Write paths to a child process stdin
+    const child = execFile('git', ['check-ignore', '--stdin', '-z'], {
+      cwd,
+      maxBuffer: 10 * 1024 * 1024,
+    });
+
+    const promise = new Promise<void>((resolve, reject) => {
+      child.stdout?.on('data', (data) => {
+        stdout += data.toString();
+      });
+      child.on('close', (code) => {
+        if (code === 0 || code === 1) {
+          resolve();
+        } else {
+          reject(new Error(`git check-ignore exited with code ${code}`));
+        }
+      });
+      child.on('error', reject);
+    });
+
+    child.stdin?.write(paths.join('\0'));
+    child.stdin?.end();
+
+    await promise;
+  } catch {
+    return new Set();
+  }
+
+  const ignored = new Set<string>();
+  if (stdout) {
+    const ignoredPaths = stdout.split('\0').filter((p) => p.length > 0);
+    for (const p of ignoredPaths) {
+      ignored.add(path.resolve(cwd, p));
+    }
+  }
+  return ignored;
 }

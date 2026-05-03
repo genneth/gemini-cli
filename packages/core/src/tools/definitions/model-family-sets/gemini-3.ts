@@ -102,6 +102,8 @@ export const GEMINI_3_SET: CoreToolSet = {
     name: READ_FILE_TOOL_NAME,
     description: `Reads and returns the content of a specified file. To maintain context efficiency, you MUST use 'start_line' and 'end_line' for targeted, surgical reads of specific sections. For your safety, the tool will automatically truncate output exceeding ${DEFAULT_MAX_LINES_TEXT_FILE} lines, ${MAX_LINE_LENGTH_TEXT_FILE} characters per line, or ${MAX_FILE_SIZE_MB}MB in size; however, triggering these limits is considered token-inefficient. Always retrieve only the minimum content necessary for your next step. Handles text, images (PNG, JPG, GIF, WEBP, SVG, BMP), audio files (MP3, WAV, AIFF, AAC, OGG, FLAC), and PDF files.
 
+MANDATORY: If LSP support is available for this file type (TypeScript, Python, Go, Rust), you MUST use \`lsp_query\` for semantic intelligence (definitions, references, hover). If \`lsp_query\` fails or returns no results, you may then fall back to reading the file.
+
 When Language Server Protocol support is enabled for this file type, a symbol index (\`<lsp_symbols>\`) and any pre-existing compiler diagnostics (\`<lsp_diagnostics>\`) are appended to the result. These reflect the file's state on disk, not any unsaved edits.`,
     parametersJsonSchema: {
       type: 'object',
@@ -150,7 +152,7 @@ When Language Server Protocol support is enabled for this file type, compiler di
   grep_search: {
     name: GREP_TOOL_NAME,
     description:
-      'Searches for a regular expression pattern within file contents. Max 100 matches.',
+      'Searches for a regular expression pattern within file contents. Max 100 matches. MANDATORY: For semantic code intelligence (finding definitions, usages, or symbols) in supported languages (TS, Python, Go, Rust), use `lsp_query`. Use this tool only as a fallback if `lsp_query` fails or returns no results.',
     parametersJsonSchema: {
       type: 'object',
       properties: {
@@ -197,7 +199,7 @@ When Language Server Protocol support is enabled for this file type, compiler di
   grep_search_ripgrep: {
     name: GREP_TOOL_NAME,
     description:
-      'Searches for a regular expression pattern within file contents. This tool is FAST and optimized, powered by ripgrep. PREFERRED over standard `run_shell_command("grep ...")` due to better performance and automatic output limiting (defaults to 100 matches, but can be increased via `total_max_matches`).',
+      'Searches for a regular expression pattern within file contents. This tool is FAST and optimized, powered by ripgrep. MANDATORY: For semantic code intelligence (finding definitions, usages, or symbols) in supported languages (TS, Python, Go, Rust), use `lsp_query`. Use this tool only as a fallback if `lsp_query` fails or returns no results.',
     parametersJsonSchema: {
       type: 'object',
       properties: {
@@ -790,9 +792,13 @@ Operations:
 - "diagnostics": Get compiler errors/warnings for a file. Use instead of running build commands to check for type errors. Three-state result: clean (no issues), issues (list of diagnostics), or "timed out" (server did not respond in time — NOT the same as clean).
 - "hover": Get the resolved type and documentation for a symbol at a position. Use to understand types without reading source files.
 - "definition": Find where a symbol is defined. Use instead of grepping for function/class declarations.
+- "implementation": Find the actual implementation of an interface or abstract method. Very important for Java, Go, TypeScript interfaces.
 - "references": Find ALL usages of a symbol across the workspace. Use for refactoring — unlike grep, this won't match comments or strings.
 - "document_symbols": Get the symbol tree (functions, classes, types) for a file. Use to understand file structure without reading full content.
 - "workspace_symbols": Search for symbols by name across the workspace. Use to find classes/functions when you know the name but not the file.
+- "prepare_call_hierarchy": Inspect the call hierarchy starting at a function.
+- "incoming_calls": Find who calls a specific function. Use for refactoring impact analysis.
+- "outgoing_calls": Find what a specific function calls.
 
 Availability and accuracy caveats:
 - Only files with a configured language server (e.g. TypeScript, Python, Go, Rust) return semantic results. Other file types return empty.
@@ -808,9 +814,13 @@ Availability and accuracy caveats:
             'diagnostics',
             'hover',
             'definition',
+            'implementation',
             'references',
             'document_symbols',
             'workspace_symbols',
+            'prepare_call_hierarchy',
+            'incoming_calls',
+            'outgoing_calls',
           ],
           description: 'The LSP operation to perform.',
         },
@@ -821,12 +831,12 @@ Availability and accuracy caveats:
         [LSP_QUERY_PARAM_LINE]: {
           type: 'integer',
           description:
-            '1-based line number. Required for hover, definition, references.',
+            "1-based line number. Required for position-based operations UNLESS you want to query the user's current active cursor location in their IDE for this file.",
         },
         [LSP_QUERY_PARAM_CHARACTER]: {
           type: 'integer',
           description:
-            '1-based character offset for hover, definition, references. If omitted, defaults to first non-whitespace character on the line.',
+            '1-based character offset. If omitted, defaults to the IDE cursor character (if querying active location) or the first non-whitespace character on the line.',
         },
         [LSP_QUERY_PARAM_QUERY]: {
           type: 'string',

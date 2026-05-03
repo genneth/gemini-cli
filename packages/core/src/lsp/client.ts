@@ -16,6 +16,9 @@ import type {
   Hover,
   Location,
   LspServerDefinition,
+  CallHierarchyItem,
+  CallHierarchyIncomingCall,
+  CallHierarchyOutgoingCall,
 } from './types.js';
 import { isRecord } from '../utils/markdownUtils.js';
 
@@ -329,6 +332,72 @@ export class LspClient extends EventEmitter<LspClientEvents> {
         position: { line, character },
         context: { includeDeclaration: true },
       },
+      signal,
+    );
+  }
+
+  /**
+   * Request go-to-implementation.
+   */
+  async implementation(
+    uri: string,
+    line: number,
+    character: number,
+    signal?: AbortSignal,
+  ): Promise<Location | Location[] | null> {
+    return this.sendRequest<Location | Location[] | null>(
+      'textDocument/implementation',
+      {
+        textDocument: { uri },
+        position: { line, character },
+      },
+      signal,
+    );
+  }
+
+  /**
+   * Prepare Call Hierarchy.
+   */
+  async prepareCallHierarchy(
+    uri: string,
+    line: number,
+    character: number,
+    signal?: AbortSignal,
+  ): Promise<CallHierarchyItem[] | null> {
+    return this.sendRequest<CallHierarchyItem[] | null>(
+      'textDocument/prepareCallHierarchy',
+      {
+        textDocument: { uri },
+        position: { line, character },
+      },
+      signal,
+    );
+  }
+
+  /**
+   * Get Incoming Calls.
+   */
+  async incomingCalls(
+    item: CallHierarchyItem,
+    signal?: AbortSignal,
+  ): Promise<CallHierarchyIncomingCall[] | null> {
+    return this.sendRequest<CallHierarchyIncomingCall[] | null>(
+      'callHierarchy/incomingCalls',
+      { item },
+      signal,
+    );
+  }
+
+  /**
+   * Get Outgoing Calls.
+   */
+  async outgoingCalls(
+    item: CallHierarchyItem,
+    signal?: AbortSignal,
+  ): Promise<CallHierarchyOutgoingCall[] | null> {
+    return this.sendRequest<CallHierarchyOutgoingCall[] | null>(
+      'callHierarchy/outgoingCalls',
+      { item },
       signal,
     );
   }

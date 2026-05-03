@@ -118,6 +118,31 @@ export interface MarkupContent {
 }
 
 // ---------------------------------------------------------------------------
+// Call Hierarchy types
+// ---------------------------------------------------------------------------
+
+export interface CallHierarchyItem {
+  name: string;
+  kind: SymbolKind;
+  tags?: number[];
+  detail?: string;
+  uri: string;
+  range: Range;
+  selectionRange: Range;
+  data?: unknown;
+}
+
+export interface CallHierarchyIncomingCall {
+  from: CallHierarchyItem;
+  fromRanges: Range[];
+}
+
+export interface CallHierarchyOutgoingCall {
+  to: CallHierarchyItem;
+  fromRanges: Range[];
+}
+
+// ---------------------------------------------------------------------------
 // TextDocument synchronization
 // ---------------------------------------------------------------------------
 

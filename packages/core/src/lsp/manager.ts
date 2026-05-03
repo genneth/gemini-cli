@@ -17,6 +17,9 @@ import type {
   LspSettings,
   Location,
   SymbolInformation,
+  CallHierarchyItem,
+  CallHierarchyIncomingCall,
+  CallHierarchyOutgoingCall,
 } from './types.js';
 import { DEFAULT_LSP_SETTINGS } from './types.js';
 import { debugLogger as logger } from '../utils/debugLogger.js';
@@ -266,6 +269,86 @@ export class LspManager {
       );
       if (!result) return [];
       return Array.isArray(result) ? result : [result];
+    } catch (e) {
+      if (e instanceof LspTimeoutError) throw e;
+      return [];
+    }
+  }
+
+  /** Request go-to-implementation. */
+  async getImplementation(
+    filePath: string,
+    line: number,
+    character: number,
+    signal?: AbortSignal,
+  ): Promise<Location[]> {
+    try {
+      const resolved = await this.resolveServer(filePath, signal);
+      if (!resolved) return [];
+      const result = await resolved.client.implementation(
+        filePathToUri(filePath),
+        line,
+        character,
+        signal,
+      );
+      if (!result) return [];
+      return Array.isArray(result) ? result : [result];
+    } catch (e) {
+      if (e instanceof LspTimeoutError) throw e;
+      return [];
+    }
+  }
+
+  /** Prepare Call Hierarchy. */
+  async prepareCallHierarchy(
+    filePath: string,
+    line: number,
+    character: number,
+    signal?: AbortSignal,
+  ): Promise<CallHierarchyItem[]> {
+    try {
+      const resolved = await this.resolveServer(filePath, signal);
+      if (!resolved) return [];
+      return (
+        (await resolved.client.prepareCallHierarchy(
+          filePathToUri(filePath),
+          line,
+          character,
+          signal,
+        )) ?? []
+      );
+    } catch (e) {
+      if (e instanceof LspTimeoutError) throw e;
+      return [];
+    }
+  }
+
+  /** Get Incoming Calls. */
+  async getIncomingCalls(
+    filePath: string,
+    item: CallHierarchyItem,
+    signal?: AbortSignal,
+  ): Promise<CallHierarchyIncomingCall[]> {
+    try {
+      const resolved = await this.resolveServer(filePath, signal);
+      if (!resolved) return [];
+      return (await resolved.client.incomingCalls(item, signal)) ?? [];
+    } catch (e) {
+      if (e instanceof LspTimeoutError) throw e;
+      return [];
+    }
+  }
+
+  /** Get Outgoing Calls. */
+  async getOutgoingCalls(
+    filePath: string,
+    item: CallHierarchyItem,
+    signal?: AbortSignal,
+  ): Promise<CallHierarchyOutgoingCall[]> {
+    try {
+      const resolved = await this.resolveServer(filePath, signal);
+      if (!resolved) return [];
+      return (await resolved.client.outgoingCalls(item, signal)) ?? [];
     } catch (e) {
       if (e instanceof LspTimeoutError) throw e;
       return [];
