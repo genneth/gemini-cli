@@ -418,6 +418,129 @@ export type HistoryItemMcpStatus = HistoryItemBase & {
   showSchema: boolean;
 };
 
+export interface MemoryBreakdown {
+  global: number;
+  project: number;
+  extension: number;
+  userProject: number;
+}
+
+export interface MemoryFileInfo {
+  path: string;
+  tokens: number;
+  category: 'global' | 'project' | 'extension' | 'userProject';
+}
+
+export interface McpInstructionInfo {
+  serverName: string;
+  tokens: number;
+}
+
+/** A single high-cost node surfaced by /context when ContextManager is on. */
+export interface TopConsumer {
+  nodeType: string;
+  /** Short human-readable label (tool name, prompt snippet, summary text...) */
+  label: string;
+  tokens: number;
+  /**
+   * Approximate age in user-prompt turns from the tail of the conversation.
+   * 0 = current turn; positive = older.
+   */
+  ageTurns: number;
+}
+
+/** Per-node-type aggregate over the active context graph. */
+export interface NodeTypeSummary {
+  nodeType: string;
+  count: number;
+  tokens: number;
+}
+
+/**
+ * The most recent processor mutation surfaced by /context. Answers
+ * "did the pipeline just compress something?".
+ */
+export interface LastCompressionEvent {
+  processorId: string;
+  /** Wall-clock seconds since the mutation. */
+  secondsAgo: number;
+  /** Approx user-prompt turns since the mutation, or null if unknown. */
+  turnsAgo: number | null;
+  removedCount: number;
+  addedCount: number;
+  /**
+   * sum(tokens(removedNodes)) - sum(tokens(addedNodes)). Null when one or
+   * more removed nodes can no longer be looked up (e.g. consolidated by a
+   * later mutation), in which case the saving can't be precisely computed.
+   */
+  tokensSaved: number | null;
+}
+
+/**
+ * How the headline total-tokens number was derived.
+ * - `api`: from the actual API response (`lastPromptTokenCount`). Ground truth.
+ * - `estimated`: heuristic sum (`estimateTokenCountSync`). Used before the first
+ *   API exchange, or as a fallback. Multimodal content (PDFs, images) is given
+ *   conservative flat upper bounds, so this can over-count by a large multiple.
+ */
+export type TotalTokensSource = 'api' | 'estimated';
+
+/**
+ * Conversation row data. Heuristic is always available; residual is the
+ * API-attributed amount (total − static categories) when an API count exists.
+ * UI shows both numbers when `materiallyDivergent` is true.
+ */
+export interface ConversationTokenInfo {
+  heuristic: number;
+  residual: number | null;
+  /**
+   * True when heuristic and residual diverge materially: both
+   * `|heuristic - residual| >= 10_000` AND `max/min >= 1.5`. Implies that
+   * the heuristic is likely mis-counting multimodal content (PDFs etc.).
+   */
+  materiallyDivergent: boolean;
+}
+
+export interface ContextWindowData {
+  model: string;
+  tokenLimit: number;
+  /** Headline total tokens. API count when `totalTokensSource = 'api'`; sum of category estimates otherwise. */
+  totalTokens: number;
+  totalTokensSource: TotalTokensSource;
+  systemPromptTokens: number;
+  memoryTokens: number;
+  memoryFileCount: number;
+  memoryBreakdown: MemoryBreakdown | null;
+  memoryFiles: MemoryFileInfo[];
+  mcpInstructions: McpInstructionInfo[];
+  mcpInstructionTokens: number;
+  toolDeclarationTokens: number;
+  toolCount: number;
+  conversationTokens: ConversationTokenInfo;
+  turnCount: number;
+  compressionThreshold: number;
+  /** Suppressed (null) when totalTokensSource is `estimated` — denominator is unreliable. */
+  estimatedTurnsRemaining: number | null;
+  contextManagementEnabled: boolean;
+  /**
+   * Whether the ContextManager pipeline is actually wired (not just configured).
+   * When true, threshold-based metrics (compression marker, estimatedTurnsRemaining)
+   * don't apply — the pipeline uses an absolute retained-token budget instead.
+   */
+  contextManagerActive: boolean;
+  /** Absolute retained-token budget from the active sidecar profile, when CM is on. */
+  cmRetainedTokenBudget: number | null;
+  /** Active sidecar profile name when CM is on (e.g. "Generalist (Default)"). */
+  cmProfileName: string | null;
+  topConsumers: TopConsumer[] | null;
+  nodeTypeBreakdown: NodeTypeSummary[] | null;
+  lastCompression: LastCompressionEvent | null;
+}
+
+export type HistoryItemContextWindow = HistoryItemBase & {
+  type: 'context_window';
+  data: ContextWindowData;
+};
 // Individually exported types extending HistoryItemBase
 export type HistoryItemWithoutId =
   | HistoryItemUser
@@ -447,7 +570,8 @@ export type HistoryItemWithoutId =
   | HistoryItemChatList
   | HistoryItemThinking
   | HistoryItemHint
-  | HistoryItemSubagent;
+  | HistoryItemSubagent
+  | HistoryItemContextWindow;
 
 export type HistoryItem = HistoryItemWithoutId & { id: number };
 
@@ -474,6 +598,7 @@ export enum MessageType {
   GEMMA_STATUS = 'gemma_status',
   CHAT_LIST = 'chat_list',
   HINT = 'hint',
+  CONTEXT_WINDOW = 'context_window',
 }
 
 // Simplified message structure for internal feedback

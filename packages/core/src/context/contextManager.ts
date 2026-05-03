@@ -15,6 +15,7 @@ import type { ContextTracer } from './tracer.js';
 import type { ContextEnvironment } from './pipeline/environment.js';
 import type { ContextProfile } from './config/profiles.js';
 import type { PipelineOrchestrator } from './pipeline/orchestrator.js';
+import type { GraphMutation } from './pipeline.js';
 import { render } from './graph/render.js';
 import { ContextWorkingBufferImpl } from './pipeline/contextWorkingBuffer.js';
 import { debugLogger } from '../utils/debugLogger.js';
@@ -489,5 +490,39 @@ export class ContextManager {
     } catch (e) {
       debugLogger.warn('[ContextManager] Hot start calibration failed', e);
     }
+  }
+
+  /**
+   * Exposes the pipeline's mutation history (processor results) for diagnostics.
+   * Each entry records which nodes a processor removed/added, in chronological order.
+   */
+  getAuditLog(): readonly GraphMutation[] {
+    return this.buffer.getAuditLog();
+  }
+
+  /**
+   * Returns the absolute retained-token budget from the active sidecar profile,
+   * or undefined if no budget is configured. This is the threshold at which
+   * the pipeline starts emitting consolidation events.
+   */
+  getRetainedTokenBudget(): number | undefined {
+    return this.sidecar.config.budget?.retainedTokens;
+  }
+
+  /**
+   * Returns the active sidecar profile's display name (e.g. "Generalist (Default)",
+   * "Power User (Experimental)", "Stress Test", or a custom JSON profile name).
+   */
+  getProfileName(): string {
+    return this.sidecar.name;
+  }
+
+  /**
+   * Returns the pristine (pre-processing) source nodes for a given active node id.
+   * Useful for showing provenance — e.g. which original turns a rolling summary
+   * consolidated. Cheaper than getPristineGraph() which sweeps every active node.
+   */
+  getProvenance(nodeId: string): readonly ConcreteNode[] {
+    return this.buffer.getPristineNodes(nodeId);
   }
 }

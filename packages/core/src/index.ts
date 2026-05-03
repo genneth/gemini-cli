@@ -131,6 +131,7 @@ export * from './utils/constants.js';
 export * from './utils/sessionUtils.js';
 export * from './utils/cache.js';
 export * from './utils/markdownUtils.js';
+export { estimateTokenCountSync } from './utils/tokenCalculation.js';
 
 // Export services
 export * from './services/fileDiscoveryService.js';
@@ -148,6 +149,8 @@ export {
 } from './services/memoryService.js';
 export { isProjectSkillPatchTarget } from './services/memoryPatchUtils.js';
 export * from './context/memoryContextManager.js';
+export { ContextManager } from './context/contextManager.js';
+export type { GraphMutation } from './context/pipeline.js';
 export * from './services/trackerService.js';
 export * from './services/trackerTypes.js';
 export * from './services/keychainService.js';

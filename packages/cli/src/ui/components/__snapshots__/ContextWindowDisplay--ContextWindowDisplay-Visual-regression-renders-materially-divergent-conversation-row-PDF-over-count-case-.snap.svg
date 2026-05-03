@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="309" viewBox="0 0 920 309">
+  <style>
+    text { font-family: Consolas, "Courier New", monospace; font-size: 14px; dominant-baseline: text-before-edge; white-space: pre; }
+  </style>
+  <rect width="920" height="309" fill="#000000" />
+  <g transform="translate(10, 10)">
+    <text x="0" y="2" fill="#333333" textLength="900" lengthAdjust="spacingAndGlyphs">╭──────────────────────────────────────────────────────────────────────────────────────────────────╮</text>
+    <text x="0" y="19" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="19" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="36" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="36" fill="#d7afff" textLength="63" lengthAdjust="spacingAndGlyphs" font-weight="bold">Context</text>
+    <text x="90" y="36" fill="#afafaf" textLength="207" lengthAdjust="spacingAndGlyphs"> · gemini-3-pro-preview</text>
+    <text x="891" y="36" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="53" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="53" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="70" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="70" fill="#ffffff" textLength="189" lengthAdjust="spacingAndGlyphs" font-weight="bold">921k tokens remaining</text>
+    <text x="216" y="70" fill="#afafaf" textLength="369" lengthAdjust="spacingAndGlyphs"> of 1000k · ≈ 1,322 turns at current rate</text>
+    <text x="891" y="70" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="87" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="87" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="104" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="104" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">▐</text>
+    <text x="36" y="104" fill="#87afff" textLength="9" lengthAdjust="spacingAndGlyphs">█</text>
+    <text x="45" y="104" fill="#ffffaf" textLength="9" lengthAdjust="spacingAndGlyphs">█</text>
+    <text x="54" y="104" fill="#d7afff" textLength="18" lengthAdjust="spacingAndGlyphs">██</text>
+    <text x="72" y="104" fill="#afafaf" textLength="36" lengthAdjust="spacingAndGlyphs">████</text>
+    <text x="108" y="104" fill="#333333" textLength="540" lengthAdjust="spacingAndGlyphs">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</text>
+    <text x="648" y="104" fill="#ffffff" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="657" y="104" fill="#333333" textLength="108" lengthAdjust="spacingAndGlyphs">░░░░░░░░░░░▌</text>
+    <text x="891" y="104" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="121" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="121" fill="#afafaf" textLength="630" lengthAdjust="spacingAndGlyphs">used (8%) · API                                      compress at 85% ┘</text>
+    <text x="891" y="121" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="138" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="138" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="155" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="155" fill="#ffffff" textLength="81" lengthAdjust="spacingAndGlyphs" font-weight="bold">Breakdown</text>
+    <text x="891" y="155" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="172" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="172" fill="#87afff" textLength="117" lengthAdjust="spacingAndGlyphs">System prompt</text>
+    <text x="144" y="172" fill="#ffffff" textLength="180" lengthAdjust="spacingAndGlyphs">               1,790</text>
+    <text x="324" y="172" fill="#afafaf" textLength="54" lengthAdjust="spacingAndGlyphs">  0.2%</text>
+    <text x="891" y="172" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="189" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="189" fill="#ffffaf" textLength="108" lengthAdjust="spacingAndGlyphs">Memory files</text>
+    <text x="135" y="189" fill="#ffffff" textLength="189" lengthAdjust="spacingAndGlyphs">                6,964</text>
+    <text x="324" y="189" fill="#afafaf" textLength="135" lengthAdjust="spacingAndGlyphs">  0.7%  3 files</text>
+    <text x="891" y="189" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="206" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="206" fill="#d7afff" textLength="108" lengthAdjust="spacingAndGlyphs">Tool schemas</text>
+    <text x="135" y="206" fill="#ffffff" textLength="198" lengthAdjust="spacingAndGlyphs">                20,126</text>
+    <text x="333" y="206" fill="#afafaf" textLength="144" lengthAdjust="spacingAndGlyphs">  2.0%  76 tools</text>
+    <text x="891" y="206" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="223" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="223" fill="#afafaf" textLength="108" lengthAdjust="spacingAndGlyphs">Conversation</text>
+    <text x="135" y="223" fill="#ffffff" textLength="198" lengthAdjust="spacingAndGlyphs">                50,120</text>
+    <text x="333" y="223" fill="#afafaf" textLength="252" lengthAdjust="spacingAndGlyphs"> (834k est)  5.0%  159 turns</text>
+    <text x="891" y="223" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="240" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="240" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="257" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="257" fill="#afafaf" textLength="306" lengthAdjust="spacingAndGlyphs">Context strategy: compression only</text>
+    <text x="891" y="257" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="274" fill="#333333" textLength="900" lengthAdjust="spacingAndGlyphs">╰──────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+  </g>
+</svg>

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="530" viewBox="0 0 920 530">
+  <style>
+    text { font-family: Consolas, "Courier New", monospace; font-size: 14px; dominant-baseline: text-before-edge; white-space: pre; }
+  </style>
+  <rect width="920" height="530" fill="#000000" />
+  <g transform="translate(10, 10)">
+    <text x="0" y="2" fill="#333333" textLength="900" lengthAdjust="spacingAndGlyphs">╭──────────────────────────────────────────────────────────────────────────────────────────────────╮</text>
+    <text x="0" y="19" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="19" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="36" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="36" fill="#d7afff" textLength="63" lengthAdjust="spacingAndGlyphs" font-weight="bold">Context</text>
+    <text x="90" y="36" fill="#afafaf" textLength="207" lengthAdjust="spacingAndGlyphs"> · gemini-3-pro-preview</text>
+    <text x="891" y="36" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="53" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="53" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="70" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="70" fill="#ffffff" textLength="189" lengthAdjust="spacingAndGlyphs" font-weight="bold">752k tokens remaining</text>
+    <text x="216" y="70" fill="#afafaf" textLength="81" lengthAdjust="spacingAndGlyphs"> of 1000k</text>
+    <text x="891" y="70" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="87" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="87" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="104" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="104" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">▐</text>
+    <text x="36" y="104" fill="#87afff" textLength="9" lengthAdjust="spacingAndGlyphs">█</text>
+    <text x="45" y="104" fill="#ffffaf" textLength="9" lengthAdjust="spacingAndGlyphs">█</text>
+    <text x="54" y="104" fill="#d7afff" textLength="18" lengthAdjust="spacingAndGlyphs">██</text>
+    <text x="72" y="104" fill="#afafaf" textLength="153" lengthAdjust="spacingAndGlyphs">█████████████████</text>
+    <text x="225" y="104" fill="#333333" textLength="171" lengthAdjust="spacingAndGlyphs">░░░░░░░░░░░░░░░░░░░</text>
+    <text x="396" y="104" fill="#ffffff" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="405" y="104" fill="#333333" textLength="360" lengthAdjust="spacingAndGlyphs">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▌</text>
+    <text x="891" y="104" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="121" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="121" fill="#afafaf" textLength="477" lengthAdjust="spacingAndGlyphs">used (25%) · API                         └ retain 50%</text>
+    <text x="891" y="121" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="138" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="138" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="155" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="155" fill="#ffffff" textLength="81" lengthAdjust="spacingAndGlyphs" font-weight="bold">Breakdown</text>
+    <text x="891" y="155" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="172" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="172" fill="#87afff" textLength="117" lengthAdjust="spacingAndGlyphs">System prompt</text>
+    <text x="144" y="172" fill="#ffffff" textLength="180" lengthAdjust="spacingAndGlyphs">               8,000</text>
+    <text x="324" y="172" fill="#afafaf" textLength="54" lengthAdjust="spacingAndGlyphs">  0.8%</text>
+    <text x="891" y="172" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="189" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="189" fill="#ffffaf" textLength="108" lengthAdjust="spacingAndGlyphs">Memory files</text>
+    <text x="135" y="189" fill="#ffffff" textLength="198" lengthAdjust="spacingAndGlyphs">                12,000</text>
+    <text x="333" y="189" fill="#afafaf" textLength="135" lengthAdjust="spacingAndGlyphs">  1.2%  0 files</text>
+    <text x="891" y="189" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="206" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="206" fill="#d7afff" textLength="108" lengthAdjust="spacingAndGlyphs">Tool schemas</text>
+    <text x="135" y="206" fill="#ffffff" textLength="198" lengthAdjust="spacingAndGlyphs">                20,000</text>
+    <text x="333" y="206" fill="#afafaf" textLength="144" lengthAdjust="spacingAndGlyphs">  2.0%  14 tools</text>
+    <text x="891" y="206" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="223" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="223" fill="#afafaf" textLength="207" lengthAdjust="spacingAndGlyphs">Conversation (rendered)</text>
+    <text x="234" y="223" fill="#ffffff" textLength="108" lengthAdjust="spacingAndGlyphs">     208,374</text>
+    <text x="342" y="223" fill="#afafaf" textLength="144" lengthAdjust="spacingAndGlyphs">  20.8%  6 turns</text>
+    <text x="891" y="223" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="240" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="240" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="257" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="257" fill="#afafaf" textLength="684" lengthAdjust="spacingAndGlyphs">Last compression: 3 turns ago — rolling-summary (8 → 1 nodes, saved 32k tok)</text>
+    <text x="891" y="257" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="274" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="274" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="291" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="291" fill="#ffffff" textLength="198" lengthAdjust="spacingAndGlyphs" font-weight="bold">Conversation breakdown</text>
+    <text x="891" y="291" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="308" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="45" y="308" fill="#afafaf" textLength="36" lengthAdjust="spacingAndGlyphs">tool</text>
+    <text x="81" y="308" fill="#ffffff" textLength="216" lengthAdjust="spacingAndGlyphs">              120,000   </text>
+    <text x="297" y="308" fill="#afafaf" textLength="72" lengthAdjust="spacingAndGlyphs">12 nodes</text>
+    <text x="891" y="308" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="325" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="45" y="325" fill="#afafaf" textLength="36" lengthAdjust="spacingAndGlyphs">user</text>
+    <text x="81" y="325" fill="#ffffff" textLength="216" lengthAdjust="spacingAndGlyphs">              14,500    </text>
+    <text x="297" y="325" fill="#afafaf" textLength="63" lengthAdjust="spacingAndGlyphs">7 nodes</text>
+    <text x="891" y="325" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="342" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="45" y="342" fill="#afafaf" textLength="45" lengthAdjust="spacingAndGlyphs">reply</text>
+    <text x="90" y="342" fill="#ffffff" textLength="207" lengthAdjust="spacingAndGlyphs">             28,000    </text>
+    <text x="297" y="342" fill="#afafaf" textLength="63" lengthAdjust="spacingAndGlyphs">6 nodes</text>
+    <text x="891" y="342" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="359" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="45" y="359" fill="#afafaf" textLength="63" lengthAdjust="spacingAndGlyphs">summary</text>
+    <text x="108" y="359" fill="#ffffff" textLength="189" lengthAdjust="spacingAndGlyphs">           13,000    </text>
+    <text x="297" y="359" fill="#afafaf" textLength="63" lengthAdjust="spacingAndGlyphs">2 nodes</text>
+    <text x="891" y="359" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="376" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="376" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="393" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="393" fill="#ffffff" textLength="117" lengthAdjust="spacingAndGlyphs" font-weight="bold">Top consumers</text>
+    <text x="891" y="393" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="410" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="45" y="410" fill="#afafaf" textLength="36" lengthAdjust="spacingAndGlyphs">tool</text>
+    <text x="81" y="410" fill="#ffffff" textLength="180" lengthAdjust="spacingAndGlyphs">          45,000    </text>
+    <text x="261" y="410" fill="#afafaf" textLength="63" lengthAdjust="spacingAndGlyphs">-1 turn</text>
+    <text x="351" y="410" fill="#afafaf" textLength="135" lengthAdjust="spacingAndGlyphs">read_many_files</text>
+    <text x="891" y="410" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="427" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="45" y="427" fill="#afafaf" textLength="36" lengthAdjust="spacingAndGlyphs">user</text>
+    <text x="81" y="427" fill="#ffffff" textLength="180" lengthAdjust="spacingAndGlyphs">          8,200     </text>
+    <text x="261" y="427" fill="#afafaf" textLength="27" lengthAdjust="spacingAndGlyphs">now</text>
+    <text x="351" y="427" fill="#afafaf" textLength="297" lengthAdjust="spacingAndGlyphs">Refactor the authentication flow…</text>
+    <text x="891" y="427" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="444" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="45" y="444" fill="#afafaf" textLength="63" lengthAdjust="spacingAndGlyphs">summary</text>
+    <text x="108" y="444" fill="#ffffff" textLength="153" lengthAdjust="spacingAndGlyphs">       6,500     </text>
+    <text x="261" y="444" fill="#afafaf" textLength="72" lengthAdjust="spacingAndGlyphs">-4 turns</text>
+    <text x="351" y="444" fill="#afafaf" textLength="342" lengthAdjust="spacingAndGlyphs">Earlier discussion about config schema</text>
+    <text x="891" y="444" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="461" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="461" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="478" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="478" fill="#afafaf" textLength="486" lengthAdjust="spacingAndGlyphs">Context strategy: ContextManager: Generalist (Default)</text>
+    <text x="891" y="478" fill="#333333" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="495" fill="#333333" textLength="900" lengthAdjust="spacingAndGlyphs">╰──────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+  </g>
+</svg>

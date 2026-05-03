@@ -348,6 +348,10 @@ export class GeminiClient {
     return this.chat?.getChatRecordingService();
   }
 
+  getContextManager(): ContextManager | undefined {
+    return this.contextManager;
+  }
+
   getLoopDetectionService(): LoopDetectionService {
     return this.loopDetector;
   }

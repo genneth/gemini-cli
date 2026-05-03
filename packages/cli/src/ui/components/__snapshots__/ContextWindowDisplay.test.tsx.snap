@@ -1,0 +1,159 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`<ContextWindowDisplay /> > Visual regression > renders API-confirmed CM-off case with turns estimate 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                  │
+│  Context · gemini-3-pro-preview                                                                  │
+│                                                                                                  │
+│  880k tokens remaining of 1000k · ≈ 28 turns at current rate                                     │
+│                                                                                                  │
+│  ▐██████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│░░░░░░░░░░░▌              │
+│  used (12%) · API                                     compress at 85% ┘                          │
+│                                                                                                  │
+│  Breakdown                                                                                       │
+│  System prompt               8,000  0.8%                                                         │
+│  Memory files                12,000  1.2%  0 files                                               │
+│  Tool schemas                20,000  2.0%  14 tools                                              │
+│  Conversation                80,000  8.0%  6 turns                                               │
+│                                                                                                  │
+│  Context strategy: compression only                                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+`;
+
+exports[`<ContextWindowDisplay /> > Visual regression > renders CM-on case with all diagnostics (top consumers, breakdown, last compression) 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                  │
+│  Context · gemini-3-pro-preview                                                                  │
+│                                                                                                  │
+│  752k tokens remaining of 1000k                                                                  │
+│                                                                                                  │
+│  ▐█████████████████████░░░░░░░░░░░░░░░░░░░│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▌              │
+│  used (25%) · API                         └ retain 50%                                           │
+│                                                                                                  │
+│  Breakdown                                                                                       │
+│  System prompt               8,000  0.8%                                                         │
+│  Memory files                12,000  1.2%  0 files                                               │
+│  Tool schemas                20,000  2.0%  14 tools                                              │
+│  Conversation (rendered)     208,374  20.8%  6 turns                                             │
+│                                                                                                  │
+│  Last compression: 3 turns ago — rolling-summary (8 → 1 nodes, saved 32k tok)                    │
+│                                                                                                  │
+│  Conversation breakdown                                                                          │
+│    tool              120,000   12 nodes                                                          │
+│    user              14,500    7 nodes                                                           │
+│    reply             28,000    6 nodes                                                           │
+│    summary           13,000    2 nodes                                                           │
+│                                                                                                  │
+│  Top consumers                                                                                   │
+│    tool          45,000    -1 turn   read_many_files                                             │
+│    user          8,200     now       Refactor the authentication flow…                           │
+│    summary       6,500     -4 turns  Earlier discussion about config schema                      │
+│                                                                                                  │
+│  Context strategy: ContextManager: Generalist (Default)                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+`;
+
+exports[`<ContextWindowDisplay /> > Visual regression > renders CM-on case with profile name and retain marker 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                  │
+│  Context · gemini-3-pro-preview                                                                  │
+│                                                                                                  │
+│  750k tokens remaining of 1000k                                                                  │
+│                                                                                                  │
+│  ▐█████████████████████░░░░░░░░░░░░░░░░░░░│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▌              │
+│  used (25%) · API                         └ retain 50%                                           │
+│                                                                                                  │
+│  Breakdown                                                                                       │
+│  System prompt               8,000  0.8%                                                         │
+│  Memory files                12,000  1.2%  0 files                                               │
+│  Tool schemas                20,000  2.0%  14 tools                                              │
+│  Conversation (rendered)     210,000  21.0%  6 turns                                             │
+│                                                                                                  │
+│  Context strategy: ContextManager: Generalist (Default)                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+`;
+
+exports[`<ContextWindowDisplay /> > Visual regression > renders estimate-only CM-off case (no API count, turns suppressed) 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                  │
+│  Context · gemini-3-pro-preview                                                                  │
+│                                                                                                  │
+│  880k tokens remaining of 1000k                                                                  │
+│                                                                                                  │
+│  ▐██████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│░░░░░░░░░░░▌              │
+│  used (12%) · est                                     compress at 85% ┘                          │
+│                                                                                                  │
+│  Breakdown                                                                                       │
+│  System prompt               8,000  0.8%                                                         │
+│  Memory files                12,000  1.2%  0 files                                               │
+│  Tool schemas                20,000  2.0%  14 tools                                              │
+│  Conversation                80,000  8.0%  6 turns                                               │
+│                                                                                                  │
+│  Context strategy: compression only                                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+`;
+
+exports[`<ContextWindowDisplay /> > Visual regression > renders materially-divergent conversation row (PDF over-count case) 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                  │
+│  Context · gemini-3-pro-preview                                                                  │
+│                                                                                                  │
+│  921k tokens remaining of 1000k · ≈ 1,322 turns at current rate                                  │
+│                                                                                                  │
+│  ▐████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│░░░░░░░░░░░▌              │
+│  used (8%) · API                                      compress at 85% ┘                          │
+│                                                                                                  │
+│  Breakdown                                                                                       │
+│  System prompt               1,790  0.2%                                                         │
+│  Memory files                6,964  0.7%  3 files                                                │
+│  Tool schemas                20,126  2.0%  76 tools                                              │
+│  Conversation                50,120 (834k est)  5.0%  159 turns                                  │
+│                                                                                                  │
+│  Context strategy: compression only                                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+`;
+
+exports[`<ContextWindowDisplay /> > Visual regression > renders near-threshold CM-off case (warning color on headline) 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                  │
+│  Context · gemini-3-pro-preview                                                                  │
+│                                                                                                  │
+│  200k tokens remaining of 1000k · ≈ 3 turns at current rate                                      │
+│                                                                                                  │
+│  ▐█████████████████████████████████████████████████████████████████░░░│░░░░░░░░░░░▌              │
+│  used (80%) · API                                     compress at 85% ┘                          │
+│                                                                                                  │
+│  Breakdown                                                                                       │
+│  System prompt               8,000  0.8%                                                         │
+│  Memory files                12,000  1.2%  0 files                                               │
+│  Tool schemas                20,000  2.0%  14 tools                                              │
+│  Conversation                760,000  76.0%  42 turns                                            │
+│                                                                                                  │
+│  Context strategy: compression only                                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+`;
+
+exports[`<ContextWindowDisplay /> > Visual regression > renders per-file memory breakdown and MCP instructions 1`] = `
+"╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                  │
+│  Context · gemini-3-pro-preview                                                                  │
+│                                                                                                  │
+│  880k tokens remaining of 1000k · ≈ 28 turns at current rate                                     │
+│                                                                                                  │
+│  ▐██████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░│░░░░░░░░░░░▌              │
+│  used (12%) · API                                     compress at 85% ┘                          │
+│                                                                                                  │
+│  Breakdown                                                                                       │
+│  System prompt               8,000  0.8%                                                         │
+│  Memory files                18,500  1.8%  3 files                                               │
+│      global     /home/user/.gemini/GEMINI.md                                                     │
+│      project    /work/project/GEMINI.md                                                          │
+│      user       /work/project/.gemini/GEMINI.md                                                  │
+│      mcp        filesystem  1,200 tokens                                                         │
+│      mcp        github  2,400 tokens                                                             │
+│  Tool schemas                20,000  2.0%  14 tools                                              │
+│  Conversation                80,000  8.0%  6 turns                                               │
+│                                                                                                  │
+│  Context strategy: compression only                                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
+`;
