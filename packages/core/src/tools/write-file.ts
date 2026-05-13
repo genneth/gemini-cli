@@ -11,6 +11,7 @@ import os from 'node:os';
 import * as Diff from 'diff';
 import { WRITE_FILE_TOOL_NAME, WRITE_FILE_DISPLAY_NAME } from './tool-names.js';
 import type { Config } from '../config/config.js';
+import { enrichToolResultWithLsp } from '../lsp/enrichment.js';
 
 import {
   BaseDeclarativeTool,
@@ -428,14 +429,28 @@ class WriteFileToolInvocation extends BaseToolInvocation<
         llmContent = appendJitContext(llmContent, jitContext);
       }
 
-      return {
+      const baseSummary = diffStat
+        ? `${diffStat.model_added_lines} added, ${diffStat.model_removed_lines} removed`
+        : 'Written';
+
+      const enriched = await enrichToolResultWithLsp(
+        this.config,
+        this.resolvedPath,
+        correctedContentResult.correctedContent,
         llmContent,
+        abortSignal,
+      );
+
+      const resultSummary = enriched.lspSummary
+        ? `${baseSummary} — ${enriched.lspSummary}`
+        : baseSummary;
+
+      return {
+        llmContent: enriched.enrichedLlmContent,
         display: {
           name: WRITE_FILE_DISPLAY_NAME,
           description: this.getDescription(),
-          resultSummary: diffStat
-            ? `${diffStat.model_added_lines} added, ${diffStat.model_removed_lines} removed`
-            : 'Written',
+          resultSummary,
           result: {
             type: 'diff',
             path: this.resolvedPath,

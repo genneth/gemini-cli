@@ -78,7 +78,9 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
     [],
   );
 
-  if (!resultDisplay) return null;
+  if (!resultDisplay) {
+    return null;
+  }
 
   // 1. Early return for background tools (Todos)
   if (typeof resultDisplay === 'object' && 'todos' in resultDisplay) {

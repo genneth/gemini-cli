@@ -411,7 +411,9 @@ exports[`coreTools snapshots for specific models > Model: gemini-2.5-pro > snaps
 
 exports[`coreTools snapshots for specific models > Model: gemini-2.5-pro > snapshot for tool: read_file 1`] = `
 {
-  "description": "Reads and returns the content of a specified file. If the file is large, the content will be truncated. The tool's response will clearly indicate if truncation has occurred and will provide details on how to read more of the file using the 'start_line' and 'end_line' parameters. Handles text, images (PNG, JPG, GIF, WEBP, SVG, BMP), audio files (MP3, WAV, AIFF, AAC, OGG, FLAC), and PDF files. For text files, it can read specific line ranges.",
+  "description": "Reads and returns the content of a specified file. If the file is large, the content will be truncated. The tool's response will clearly indicate if truncation has occurred and will provide details on how to read more of the file using the 'start_line' and 'end_line' parameters. Handles text, images (PNG, JPG, GIF, WEBP, SVG, BMP), audio files (MP3, WAV, AIFF, AAC, OGG, FLAC), and PDF files. For text files, it can read specific line ranges.
+
+When Language Server Protocol support is enabled for this file type, a symbol index (\`<lsp_symbols>\`) and any pre-existing compiler diagnostics (\`<lsp_diagnostics>\`) are appended to the result. These reflect the file's state on disk, not any unsaved edits.",
   "name": "read_file",
   "parametersJsonSchema": {
     "properties": {
@@ -449,7 +451,9 @@ This tool is useful when you need to understand or analyze a collection of files
 - Gathering context from multiple configuration files.
 - When the user asks to "read all files in X directory" or "show me the content of all Y files".
 
-Use this tool when the user's query implies needing the content of several files simultaneously for context, analysis, or summarization. For text files, it uses default UTF-8 encoding and a '--- {filePath} ---' separator between file contents. The tool inserts a '--- End of content ---' after the last file. Ensure glob patterns are relative to the target directory. Glob patterns like 'src/**/*.js' are supported. Avoid using for single files if a more specific single-file reading tool is available, unless the user specifically requests to process a list containing just one file via this tool. Other binary files (not explicitly requested as image/audio/PDF) are generally skipped. Default excludes apply to common non-text files (except for explicitly requested images/audio/PDFs) and large dependency directories unless 'useDefaultExcludes' is false.",
+Use this tool when the user's query implies needing the content of several files simultaneously for context, analysis, or summarization. For text files, it uses default UTF-8 encoding and a '--- {filePath} ---' separator between file contents. The tool inserts a '--- End of content ---' after the last file. Ensure glob patterns are relative to the target directory. Glob patterns like 'src/**/*.js' are supported. Avoid using for single files if a more specific single-file reading tool is available, unless the user specifically requests to process a list containing just one file via this tool. Other binary files (not explicitly requested as image/audio/PDF) are generally skipped. Default excludes apply to common non-text files (except for explicitly requested images/audio/PDFs) and large dependency directories unless 'useDefaultExcludes' is false.
+
+When Language Server Protocol support is enabled, symbol indices and pre-existing compiler diagnostics are appended for up to 10 files per invocation (files with no configured language server are skipped without counting toward the budget). Files past the budget are marked with an \`<lsp_truncated reason="budget" count="..."/>\` sentinel — absence of LSP enrichment past the budget is NOT evidence of clean.",
   "name": "read_many_files",
   "parametersJsonSchema": {
     "properties": {
@@ -517,7 +521,9 @@ exports[`coreTools snapshots for specific models > Model: gemini-2.5-pro > snaps
       4. NEVER escape \`old_string\` or \`new_string\`, that would break the exact literal text requirement.
       **Important:** If ANY of the above are not satisfied, the tool will fail. CRITICAL for \`old_string\`: Must uniquely identify the instance(s) to change. Include at least 3 lines of context BEFORE and AFTER the target text, matching whitespace and indentation precisely. If this string matches multiple locations and \`allow_multiple\` is not true, the tool will fail.
       5. Prefer to break down complex and long changes into multiple smaller atomic calls to this tool. Always check the content of the file after changes or not finding a string to match.
-      **Multiple replacements:** Set \`allow_multiple\` to true if you want to replace ALL occurrences that match \`old_string\` exactly.",
+      **Multiple replacements:** Set \`allow_multiple\` to true if you want to replace ALL occurrences that match \`old_string\` exactly.
+
+When Language Server Protocol support is enabled for this file type, compiler diagnostics for the edited content are appended to the response (\`<lsp_diagnostics>\`) and a coloured status footer appears below the diff. Absence of diagnostics is NOT a guarantee the change compiles — slow language servers (notably pyright on cold start) can miss the deadline, in which case a "timed out" footer appears. Treat "timed out" as "unknown", not "clean".",
   "name": "replace",
   "parametersJsonSchema": {
     "properties": {
@@ -667,7 +673,9 @@ exports[`coreTools snapshots for specific models > Model: gemini-2.5-pro > snaps
 {
   "description": "Writes content to a specified file in the local filesystem.
 
-      The user has the ability to modify \`content\`. If modified, this will be stated in the response.",
+      The user has the ability to modify \`content\`. If modified, this will be stated in the response.
+
+When Language Server Protocol support is enabled for this file type, compiler diagnostics for the new content are appended to the response (\`<lsp_diagnostics>\`) and a coloured status footer appears below the diff. Absence of diagnostics is NOT a guarantee the change compiles — slow language servers (notably pyright on cold start) can miss the deadline, in which case a "timed out" footer appears. Treat "timed out" as "unknown", not "clean".",
   "name": "write_file",
   "parametersJsonSchema": {
     "properties": {
@@ -1209,7 +1217,9 @@ exports[`coreTools snapshots for specific models > Model: gemini-3-pro-preview >
 
 exports[`coreTools snapshots for specific models > Model: gemini-3-pro-preview > snapshot for tool: read_file 1`] = `
 {
-  "description": "Reads and returns the content of a specified file. To maintain context efficiency, you MUST use 'start_line' and 'end_line' for targeted, surgical reads of specific sections. For your safety, the tool will automatically truncate output exceeding 2000 lines, 2000 characters per line, or 20MB in size; however, triggering these limits is considered token-inefficient. Always retrieve only the minimum content necessary for your next step. Handles text, images (PNG, JPG, GIF, WEBP, SVG, BMP), audio files (MP3, WAV, AIFF, AAC, OGG, FLAC), and PDF files.",
+  "description": "Reads and returns the content of a specified file. To maintain context efficiency, you MUST use 'start_line' and 'end_line' for targeted, surgical reads of specific sections. For your safety, the tool will automatically truncate output exceeding 2000 lines, 2000 characters per line, or 20MB in size; however, triggering these limits is considered token-inefficient. Always retrieve only the minimum content necessary for your next step. Handles text, images (PNG, JPG, GIF, WEBP, SVG, BMP), audio files (MP3, WAV, AIFF, AAC, OGG, FLAC), and PDF files.
+
+When Language Server Protocol support is enabled for this file type, a symbol index (\`<lsp_symbols>\`) and any pre-existing compiler diagnostics (\`<lsp_diagnostics>\`) are appended to the result. These reflect the file's state on disk, not any unsaved edits.",
   "name": "read_file",
   "parametersJsonSchema": {
     "properties": {
@@ -1247,7 +1257,9 @@ This tool is useful when you need to understand or analyze a collection of files
 - Gathering context from multiple configuration files.
 - When the user asks to "read all files in X directory" or "show me the content of all Y files".
 
-Use this tool when the user's query implies needing the content of several files simultaneously for context, analysis, or summarization. For text files, it uses default UTF-8 encoding and a '--- {filePath} ---' separator between file contents. The tool inserts a '--- End of content ---' after the last file. Ensure glob patterns are relative to the target directory. Glob patterns like 'src/**/*.js' are supported. Avoid using for single files if a more specific single-file reading tool is available, unless the user specifically requests to process a list containing just one file via this tool. Other binary files (not explicitly requested as image/audio/PDF) are generally skipped. Default excludes apply to common non-text files (except for explicitly requested images/audio/PDFs) and large dependency directories unless 'useDefaultExcludes' is false.",
+Use this tool when the user's query implies needing the content of several files simultaneously for context, analysis, or summarization. For text files, it uses default UTF-8 encoding and a '--- {filePath} ---' separator between file contents. The tool inserts a '--- End of content ---' after the last file. Ensure glob patterns are relative to the target directory. Glob patterns like 'src/**/*.js' are supported. Avoid using for single files if a more specific single-file reading tool is available, unless the user specifically requests to process a list containing just one file via this tool. Other binary files (not explicitly requested as image/audio/PDF) are generally skipped. Default excludes apply to common non-text files (except for explicitly requested images/audio/PDFs) and large dependency directories unless 'useDefaultExcludes' is false.
+
+When Language Server Protocol support is enabled, symbol indices and pre-existing compiler diagnostics are appended for up to 10 files per invocation (files with no configured language server are skipped without counting toward the budget). Files past the budget are marked with an \`<lsp_truncated reason="budget" count="..."/>\` sentinel — absence of LSP enrichment past the budget is NOT evidence of clean.",
   "name": "read_many_files",
   "parametersJsonSchema": {
     "properties": {
@@ -1305,7 +1317,9 @@ Use this tool when the user's query implies needing the content of several files
 exports[`coreTools snapshots for specific models > Model: gemini-3-pro-preview > snapshot for tool: replace 1`] = `
 {
   "description": "Replaces text within a file. By default, the tool expects to find and replace exactly ONE occurrence of \`old_string\`. If you want to replace multiple occurrences of the exact same string, set \`allow_multiple\` to true. This tool is preferred for surgical edits to existing files as it minimizes token usage, simplifies code reviews, and avoids accidental deletions. This tool requires providing significant context around the change to ensure precise targeting.
-The user has the ability to modify the \`new_string\` content. If modified, this will be stated in the response.",
+The user has the ability to modify the \`new_string\` content. If modified, this will be stated in the response.
+
+When Language Server Protocol support is enabled for this file type, compiler diagnostics for the edited content are appended to the response (\`<lsp_diagnostics>\`). Absence of diagnostics is NOT a guarantee the change compiles — slow language servers (notably pyright on cold start) can miss the deadline, in which case a "timed out" note appears. Treat "timed out" as "unknown", not "clean".",
   "name": "replace",
   "parametersJsonSchema": {
     "properties": {
@@ -1439,7 +1453,9 @@ exports[`coreTools snapshots for specific models > Model: gemini-3-pro-preview >
 
 exports[`coreTools snapshots for specific models > Model: gemini-3-pro-preview > snapshot for tool: write_file 1`] = `
 {
-  "description": "Writes the complete content to a file, automatically creating missing parent directories. Overwrites existing files. The user has the ability to modify 'content' before it is saved. Best for new or small files; use 'replace' for targeted edits to large files to minimize token usage and simplify reviews.",
+  "description": "Writes the complete content to a file, automatically creating missing parent directories. Overwrites existing files. The user has the ability to modify 'content' before it is saved. Best for new or small files; use 'replace' for targeted edits to large files to minimize token usage and simplify reviews.
+
+When Language Server Protocol support is enabled for this file type, compiler diagnostics for the new content are appended to the response (\`<lsp_diagnostics>\`). Absence of diagnostics is NOT a guarantee the change compiles — slow language servers (notably pyright on cold start) can miss the deadline, in which case a "timed out" note appears. Treat "timed out" as "unknown", not "clean".",
   "name": "write_file",
   "parametersJsonSchema": {
     "properties": {

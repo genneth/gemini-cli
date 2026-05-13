@@ -72,6 +72,7 @@ describe('tool-display-utils', () => {
         afterText: 'new',
       });
     });
+
   });
 
   describe('renderDisplayDiff', () => {

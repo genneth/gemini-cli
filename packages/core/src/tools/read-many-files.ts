@@ -33,6 +33,7 @@ import {
   type Config,
   DEFAULT_FILE_FILTERING_OPTIONS,
 } from '../config/config.js';
+import { enrichReadManyWithLsp } from '../lsp/enrichment.js';
 import { FileOperation } from '../telemetry/metrics.js';
 import { getProgrammingLanguage } from '../telemetry/telemetry-utils.js';
 import { logFileOperation } from '../telemetry/loggers.js';
@@ -182,6 +183,7 @@ ${finalExclusionPatternsForDescription
     const filesToConsider = new Set<string>();
     const skippedFiles: Array<{ path: string; reason: string }> = [];
     const processedFilesRelativePaths: string[] = [];
+    const processedFilesAbsolutePaths: string[] = [];
     const contentParts: PartListUnion = [];
 
     const effectiveExcludes = useDefaultExcludes
@@ -391,6 +393,7 @@ ${finalExclusionPatternsForDescription
           }
 
           processedFilesRelativePaths.push(relativePathForDisplay);
+          processedFilesAbsolutePaths.push(filePath);
 
           const lines =
             typeof fileReadResult.llmContent === 'string'
@@ -489,6 +492,18 @@ ${finalExclusionPatternsForDescription
       );
     }
 
+    // LSP batch enrichment: symbol index + diagnostics for up to N files
+    // that the server covers. Files past the budget emit an
+    // <lsp_truncated> marker so the model doesn't mistake absence for clean.
+    const lspEnrichment = await enrichReadManyWithLsp(
+      this.config,
+      processedFilesAbsolutePaths,
+      signal,
+    );
+    if (lspEnrichment.llmAppendix) {
+      contentParts.push(lspEnrichment.llmAppendix);
+    }
+
     const returnDisplay: ReadManyFilesResult = {
       summary: displayMessage.trim(),
       files: processedFilesRelativePaths,
@@ -501,6 +516,9 @@ ${finalExclusionPatternsForDescription
     return {
       llmContent: contentParts,
       returnDisplay,
+      ...(lspEnrichment.lspSummary
+        ? { display: { resultSummary: lspEnrichment.lspSummary } }
+        : {}),
     };
   }
 }

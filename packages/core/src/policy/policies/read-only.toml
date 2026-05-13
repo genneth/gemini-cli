@@ -50,7 +50,9 @@ toolName = [
   "complete_task",
   # MCP resource tools
   "read_mcp_resource",
-  "list_mcp_resources"
+  "list_mcp_resources",
+  # LSP semantic query tool (read-only semantic queries over user code)
+  "lsp_query"
 ]
 decision = "allow"
 priority = 50

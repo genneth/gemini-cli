@@ -136,3 +136,10 @@ export const COMPLETE_TASK_DISPLAY_NAME = 'Complete Task';
 // -- MCP Resources --
 export const READ_MCP_RESOURCE_TOOL_NAME = 'read_mcp_resource';
 export const LIST_MCP_RESOURCES_TOOL_NAME = 'list_mcp_resources';
+
+// -- lsp_query --
+export const LSP_QUERY_TOOL_NAME = 'lsp_query';
+export const LSP_QUERY_PARAM_OPERATION = 'operation';
+export const LSP_QUERY_PARAM_LINE = 'line';
+export const LSP_QUERY_PARAM_CHARACTER = 'character';
+export const LSP_QUERY_PARAM_QUERY = 'query';

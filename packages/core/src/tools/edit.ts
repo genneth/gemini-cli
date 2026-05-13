@@ -31,6 +31,7 @@ import { makeRelative, shortenPath } from '../utils/paths.js';
 import { isNodeError } from '../utils/errors.js';
 import { correctPath } from '../utils/pathCorrector.js';
 import type { Config } from '../config/config.js';
+import { enrichToolResultWithLsp } from '../lsp/enrichment.js';
 import { CoreToolCallStatus } from '../scheduler/types.js';
 
 import { DEFAULT_DIFF_OPTIONS, getDiffStat } from './diffOptions.js';
@@ -1006,13 +1007,25 @@ ${snippet}`);
         llmContent = appendJitContext(llmContent, jitContext);
       }
 
-      const resultSummary =
+      const baseSummary =
         typeof displayResult === 'string'
           ? displayResult
           : fileDiffToSummary(displayResult, editData);
 
-      return {
+      const enriched = await enrichToolResultWithLsp(
+        this.config,
+        this.resolvedPath,
+        editData.newContent,
         llmContent,
+        signal,
+      );
+
+      const resultSummary = enriched.lspSummary
+        ? `${baseSummary} — ${enriched.lspSummary}`
+        : baseSummary;
+
+      return {
+        llmContent: enriched.enrichedLlmContent,
         display: {
           name: this._toolDisplayName,
           description: this.getDescription(),

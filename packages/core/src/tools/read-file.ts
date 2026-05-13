@@ -27,6 +27,7 @@ import {
   getSpecificMimeType,
 } from '../utils/fileUtils.js';
 import type { Config } from '../config/config.js';
+import { enrichReadWithLsp } from '../lsp/enrichment.js';
 import { FileOperation } from '../telemetry/metrics.js';
 import { getProgrammingLanguage } from '../telemetry/telemetry-utils.js';
 import { logFileOperation } from '../telemetry/loggers.js';
@@ -105,7 +106,7 @@ class ReadFileToolInvocation extends BaseToolInvocation<
     };
   }
 
-  async execute(_options: ExecuteOptions): Promise<ToolResult> {
+  async execute({ abortSignal }: ExecuteOptions): Promise<ToolResult> {
     const validationError = this.config.validatePathAccess(
       this.resolvedPath,
       'read',
@@ -186,18 +187,36 @@ ${result.llmContent}`;
       }
     }
 
-    const displayResultSummary = result.isTruncated
+    const baseSummary = result.isTruncated
       ? `${result.linesShown![0]}-${result.linesShown![1]} of ${result.originalLineCount}`
       : lines !== undefined
         ? `${lines} lines`
         : undefined;
+
+    let lspSummary: string | null = null;
+    if (typeof llmContent === 'string') {
+      const enriched = await enrichReadWithLsp(
+        this.config,
+        this.resolvedPath,
+        llmContent,
+        abortSignal,
+      );
+      llmContent = enriched.enrichedLlmContent;
+      lspSummary = enriched.lspSummary;
+    }
+
+    const resultSummary = lspSummary
+      ? baseSummary
+        ? `${baseSummary} — ${lspSummary}`
+        : lspSummary
+      : baseSummary;
 
     return {
       llmContent,
       display: {
         name: READ_FILE_DISPLAY_NAME,
         description: this.getDescription(),
-        resultSummary: displayResultSummary,
+        resultSummary,
         result: { type: 'text', text: result.returnDisplay || '' },
       },
       returnDisplay: result.returnDisplay || '',

@@ -266,6 +266,105 @@ describe('<ToolGroupDisplay />', () => {
     });
   });
 
+  describe('LSP visual feedback (resultSummary)', () => {
+    // LSP enrichment puts state into resultSummary as text + a leading glyph
+    // (✗ errors, ⚠ warnings/timed out, ✓ clean). These tests pin the rendered
+    // output so a regression — e.g. losing the glyph, dropping the summary,
+    // or rendering with the wrong theme color — shows up as a snapshot diff.
+
+    it('renders LSP error summary on edit tool (compact)', async () => {
+      const tools = [
+        createToolItem({
+          name: 'edit',
+          description: 'src/foo.ts',
+          resultSummary:
+            "1 added, 1 removed — LSP: ✗ Type 'string' not assignable (line 5)",
+        }),
+      ];
+      const item = createHistoryItem(tools);
+
+      const renderResult = await renderWithProviders(
+        <ToolGroupDisplay item={item} />,
+        { settings: compactSettings },
+      );
+
+      const output = renderResult.lastFrame();
+      expect(output).toContain('✗');
+      expect(output).toContain('LSP:');
+      await expect(renderResult).toMatchSvgSnapshot();
+    });
+
+    it('renders LSP clean summary on edit tool (compact)', async () => {
+      const tools = [
+        createToolItem({
+          name: 'edit',
+          description: 'src/foo.ts',
+          resultSummary: '1 added, 1 removed — LSP: ✓ clean',
+        }),
+      ];
+      const item = createHistoryItem(tools);
+
+      const renderResult = await renderWithProviders(
+        <ToolGroupDisplay item={item} />,
+        { settings: compactSettings },
+      );
+
+      const output = renderResult.lastFrame();
+      expect(output).toContain('✓');
+      expect(output).toContain('clean');
+      await expect(renderResult).toMatchSvgSnapshot();
+    });
+
+    it('renders LSP timed-out summary on edit tool (compact)', async () => {
+      const tools = [
+        createToolItem({
+          name: 'edit',
+          description: 'src/foo.ts',
+          resultSummary: '1 added, 1 removed — LSP: ⚠ timed out',
+        }),
+      ];
+      const item = createHistoryItem(tools);
+
+      const renderResult = await renderWithProviders(
+        <ToolGroupDisplay item={item} />,
+        { settings: compactSettings },
+      );
+
+      const output = renderResult.lastFrame();
+      expect(output).toContain('⚠');
+      expect(output).toContain('timed out');
+      await expect(renderResult).toMatchSvgSnapshot();
+    });
+
+    it('renders LSP error summary in box mode with diff result', async () => {
+      const tools = [
+        createToolItem({
+          name: 'edit',
+          description: 'src/foo.ts',
+          resultSummary:
+            "1 added, 1 removed — LSP: ✗ Cannot find name 'foo' (line 12)",
+          result: {
+            type: 'diff',
+            beforeText: 'old',
+            afterText: 'new',
+            path: 'src/foo.ts',
+          },
+        }),
+      ];
+      const item = createHistoryItem(tools);
+
+      const renderResult = await renderWithProviders(
+        <ToolGroupDisplay item={item} />,
+        { settings: fullVerbositySettings },
+      );
+
+      const output = renderResult.lastFrame();
+      expect(output).toContain('✗');
+      expect(output).toContain('LSP:');
+      await expect(renderResult).toMatchSvgSnapshot();
+    });
+  });
+
   describe('Border & Margin Logic', () => {
     it('forces top border on box when it follows a notice', async () => {
       const tools = [

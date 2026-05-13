@@ -52,6 +52,32 @@ exports[`<ToolGroupDisplay /> > Golden Snapshots > renders standalone notices wi
 "
 `;
 
+exports[`<ToolGroupDisplay /> > LSP visual feedback (resultSummary) > renders LSP clean summary on edit tool (compact) 1`] = `
+"  ✓   edit src/foo.ts → 1 added, 1 removed — LSP: ✓ clean
+"
+`;
+
+exports[`<ToolGroupDisplay /> > LSP visual feedback (resultSummary) > renders LSP error summary in box mode with diff result 1`] = `
+"
+╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│  ✓   edit src/foo.ts                                                                             │
+│                                                                                                  │
+│  1 added, 1 removed — LSP: ✗ Cannot find name 'foo' (line 12)                                    │
+│  [Diff Display: 3 -> 3 chars]                                                                    │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+"
+`;
+
+exports[`<ToolGroupDisplay /> > LSP visual feedback (resultSummary) > renders LSP error summary on edit tool (compact) 1`] = `
+"  ✓   edit src/foo.ts → 1 added, 1 removed — LSP: ✗ Type 'string' not assignable (line 5)
+"
+`;
+
+exports[`<ToolGroupDisplay /> > LSP visual feedback (resultSummary) > renders LSP timed-out summary on edit tool (compact) 1`] = `
+"  ✓   edit src/foo.ts → 1 added, 1 removed — LSP: ⚠ timed out
+"
+`;
+
 exports[`<ToolGroupDisplay /> > Result Formatting > renders compact tools with summary on same line 1`] = `
 "  ✓   test-tool Test description → Success summary
 "

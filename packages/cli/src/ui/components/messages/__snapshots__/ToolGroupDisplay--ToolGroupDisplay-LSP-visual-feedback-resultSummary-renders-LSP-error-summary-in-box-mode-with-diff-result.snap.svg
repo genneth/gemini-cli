@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="139" viewBox="0 0 920 139">
+  <style>
+    text { font-family: Consolas, "Courier New", monospace; font-size: 14px; dominant-baseline: text-before-edge; white-space: pre; }
+  </style>
+  <rect width="920" height="139" fill="#000000" />
+  <g transform="translate(10, 10)">
+    <text x="0" y="19" fill="#7f7f7f" textLength="900" lengthAdjust="spacingAndGlyphs">╭──────────────────────────────────────────────────────────────────────────────────────────────────╮</text>
+    <text x="0" y="36" fill="#7f7f7f" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="36" fill="#d7ffd7" textLength="9" lengthAdjust="spacingAndGlyphs">✓</text>
+    <text x="54" y="36" fill="#ffffff" textLength="54" lengthAdjust="spacingAndGlyphs" font-weight="bold"> edit </text>
+    <text x="108" y="36" fill="#afafaf" textLength="90" lengthAdjust="spacingAndGlyphs">src/foo.ts</text>
+    <text x="891" y="36" fill="#7f7f7f" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="53" fill="#7f7f7f" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="891" y="53" fill="#7f7f7f" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="70" fill="#7f7f7f" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="70" fill="#ffffff" textLength="540" lengthAdjust="spacingAndGlyphs">1 added, 1 removed — LSP: ✗ Cannot find name &apos;foo&apos; (line 12)</text>
+    <text x="891" y="70" fill="#7f7f7f" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="87" fill="#7f7f7f" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="27" y="87" fill="#afafaf" textLength="252" lengthAdjust="spacingAndGlyphs">[Diff Display: 3 -&gt; 3 chars]</text>
+    <text x="891" y="87" fill="#7f7f7f" textLength="9" lengthAdjust="spacingAndGlyphs">│</text>
+    <text x="0" y="104" fill="#7f7f7f" textLength="900" lengthAdjust="spacingAndGlyphs">╰──────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+  </g>
+</svg>
